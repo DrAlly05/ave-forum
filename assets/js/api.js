@@ -15,8 +15,8 @@
    ============================================================ */
 
 export const CONFIG = {
-  SUPABASE_URL: "",
-  SUPABASE_ANON_KEY: ""
+  SUPABASE_URL: "https://polrviohgygoyhmwprki.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvbHJ2aW9oZ3lnb3lobXdwcmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNDg2NDYsImV4cCI6MjEwMzkyNDY0Nn0.RweVzw4DfXkB2Tz5IzIQ70kmZCMmNAwbSX8iziM2gjI"
 };
 
 export const isLive = () => Boolean(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY);
