@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AVE Forum — African Voice of Emergency Care</title>
+<meta name="description" content="A pan-African digital platform for emergency care: education, research, innovation and professional collaboration. Prototype presented at AfCEM 2026, Arusha.">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<meta property="og:title" content="AVE Forum — African Voice of Emergency Care">
+<meta property="og:description" content="Educate. Connect. Innovate. Save lives. A pan-African platform for emergency care professionals.">
+<meta property="og:image" content="assets/img/ave-logo.png">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/ave.css">
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap bar-in">
+    <a class="brand" href="#/">
+      <img src="assets/img/ave-mark-white.png" alt="" width="30" height="30">
+      <b>AVE <span>FORUM</span></b>
+    </a>
+    <nav>
+      <span class="hide-sm">
+        <a class="nl" href="#/about">About</a>
+        <a class="nl" href="#/media">Podcast</a>
+        <a class="nl" href="#/discussion">Discussion</a>
+        <a class="nl" href="#/pillar/research">Research</a>
+      </span>
+      <button class="menu-btn icon-btn" id="menuBtn" aria-expanded="false" aria-controls="panel">Menu</button>
+      <a class="icon-btn" href="#/notifications" aria-label="Notifications">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>
+        </svg>
+        <span class="dot" id="notifDot"></span>
+      </a>
+      <span id="accountNav"></span>
+    </nav>
+  </div>
+</header>
+
+<div class="panel" id="panel" role="dialog" aria-modal="true" aria-label="Site menu">
+  <div class="wrap">
+    <div class="panel-head">
+      <a class="brand" href="#/"><img src="assets/img/ave-mark-white.png" alt="" width="30" height="30"><b>AVE <span>FORUM</span></b></a>
+      <button class="icon-btn" id="panelClose">Close</button>
+    </div>
+    <h2>Sections</h2>
+    <ul class="panel-list" id="panelList"></ul>
+    <p style="color:rgba(255,255,255,.55);font-size:.85rem;padding:1.4rem 0 2.4rem">
+      Prototype v0.2 — presented at the 8th African Conference on Emergency Medicine, Arusha, 11–13 November 2026.
+    </p>
+  </div>
+</div>
+
+<main id="views"></main>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div>
+      <a class="brand" href="#/" style="margin-bottom:.75rem"><img src="assets/img/ave-mark-white.png" alt="" width="30" height="30"><b>AVE <span>FORUM</span></b></a>
+      <p style="margin:0;max-width:34ch">African Voice of Emergency Care. A pan-African platform for emergency care education, research, innovation and collaboration.</p>
+    </div>
+    <div>
+      <h4>Pillars</h4>
+      <ul id="footPillars"></ul>
+    </div>
+    <div>
+      <h4>Platform</h4>
+      <ul>
+        <li><a href="#/about">About</a></li>
+        <li><a href="#/media">Podcast and media</a></li>
+        <li><a href="#/discussion">Discussion</a></li>
+        <li><a href="#/register">Join / register</a></li>
+        <li><a href="mailto:hello@aveforum.africa">hello@aveforum.africa</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap colophon">
+    <span>Prototype v0.2 — AfCEM 2026, Arusha, 11–13 November 2026.</span>
+    <span>© 2026 AVE Forum</span>
+  </div>
+</footer>
+
+<!-- Netlify Forms fallback: lets registrations be captured before Supabase is connected. -->
+<form name="register" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input name="bot-field"><input name="full_name"><input name="email"><input name="country">
+  <input name="role"><input name="interest"><textarea name="message"></textarea>
+</form>
+
+<script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
