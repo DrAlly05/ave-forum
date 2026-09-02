@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  AVE Forum podcast feed.
+  Submit this file's live URL (https://YOURDOMAIN/feed.xml) to Spotify for Podcasters
+  and Apple Podcasts Connect. Add one <item> per episode. Delete the example item.
+  Audio files can be hosted anywhere public (Netlify /assets/audio/, Google Drive
+  direct link, or a podcast host). enclosure length is the file size in BYTES.
+-->
+<rss version="2.0"
+     xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>AVE Forum — African Voice of Emergency Care</title>
+    <link>https://YOURDOMAIN/</link>
+    <language>en</language>
+    <description>Conversations with the people building emergency care across Africa: clinicians, nurses, paramedics, researchers and educators.</description>
+    <itunes:author>AVE Forum</itunes:author>
+    <itunes:summary>Conversations with the people building emergency care across Africa.</itunes:summary>
+    <itunes:type>episodic</itunes:type>
+    <itunes:explicit>false</itunes:explicit>
+    <itunes:owner>
+      <itunes:name>AVE Forum</itunes:name>
+      <itunes:email>hello@YOURDOMAIN</itunes:email>
+    </itunes:owner>
+    <itunes:image href="https://YOURDOMAIN/assets/ave-logo.png"/>
+    <itunes:category text="Health &amp; Fitness">
+      <itunes:category text="Medicine"/>
+    </itunes:category>
+
+    <!-- EXAMPLE ITEM — replace with a real episode, then delete this comment
+    <item>
+      <title>Building an emergency department from nothing</title>
+      <description>A conversation about the first year of a new ED.</description>
+      <pubDate>Mon, 12 Oct 2026 06:00:00 +0300</pubDate>
+      <guid isPermaLink="false">ave-ep-001</guid>
+      <itunes:duration>00:32:10</itunes:duration>
+      <itunes:episode>1</itunes:episode>
+      <enclosure url="https://YOURDOMAIN/assets/audio/ep001.mp3" length="30870000" type="audio/mpeg"/>
+    </item>
+    -->
+  </channel>
+</rss>
