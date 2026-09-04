@@ -14,21 +14,24 @@ Emergency Medicine (AfCEM 2026), Arusha, 11–13 November 2026**.
 
 All eight sections of the specification are implemented.
 
-| # | Section | State |
-|---|---------|-------|
-| 1 | Home | Live |
-| 2 | About — vision, mission, pillars, core values | Live |
-| 3 | Seven interconnected pillars, one page each | Live, content growing |
-| 4 | Podcast and media — audio, video, live broadcast | Live, awaiting first recording |
-| 5 | User profile | Built, needs Supabase connected |
-| 6 | Discussion rooms and direct messages | Built, needs Supabase connected |
-| 7 | Notifications | Built, needs Supabase connected |
-| 8 | Join / register | Live |
+Twelve navigation sections, every one functional: Home, About, Explore, Clinical
+Excellence, Research, Leadership, Community, Frontline Stories, Innovation, Her Voice
+in EM, AVE Media, Events. Plus the account layer — profile, discussion rooms, direct
+messages, notifications and registration — running on Postgres with row-level
+security.
 
-Sections 5 to 7 need a database. Until one is connected the site runs in **preview
-mode**: the interfaces render so the design can be reviewed and demonstrated, the
-controls are disabled, and a banner says plainly that the data layer is not yet
-switched on. Nothing is faked.
+No dead links, no decorative buttons, no empty pages. Every card opens a detail page.
+Explore searches and filters the whole library.
+
+**On seeded content.** Cards marked `DEMO` are subject headings, not published work.
+No author, institution, finding or outcome is attached to any of them, and the detail
+page says so explicitly. They are replaced as members contribute. The Research
+Spotlight is different: fourteen real peer-reviewed papers, real authors, live DOIs.
+
+This distinction is deliberate. The platform will be shown at a scientific conference
+where delegates will open it on their phones. Invented studies or fabricated
+testimonials would not survive that, and would damage the founder rather than the
+developer.
 
 ## Architecture
 

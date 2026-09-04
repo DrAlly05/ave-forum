@@ -252,3 +252,95 @@ footer ul a:hover{text-decoration:underline}
 
 .view{display:none}
 .view[data-active]{display:block}
+
+/* ============================================================
+   v0.3 — full platform: dense homepage, section rails, badges,
+   member cards, founder panel, detail pages.
+   ============================================================ */
+
+.badge{font-family:var(--ui);font-size:.64rem;font-weight:700;letter-spacing:.1em;padding:.18rem .45rem;
+  border-radius:2px;display:inline-block;vertical-align:middle}
+.badge.demo{background:rgba(210,162,78,.24);color:var(--gold-deep);border:1px solid rgba(210,162,78,.5)}
+.badge.real{background:rgba(27,122,75,.12);color:var(--ok)}
+.badge.founder{background:var(--gold);color:var(--navy)}
+.badge.cat{background:rgba(3,30,60,.07);color:var(--ink-2)}
+.badge.nav{background:rgba(200,20,24,.1);color:var(--red)}
+
+/* section rail: kicker + title + link on one line */
+.rail{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.6rem}
+.rail .kick{font-family:var(--ui);font-weight:700;font-size:.72rem;letter-spacing:.15em;color:var(--gold-deep);margin:0 0 .35rem}
+.rail h2{font-size:clamp(1.35rem,2.8vw,1.85rem);font-weight:700}
+.rail a{font-family:var(--ui);font-weight:600;font-size:.83rem;color:var(--red);text-decoration:none;white-space:nowrap}
+.rail a:hover{text-decoration:underline}
+
+/* dense card grid */
+.cards{display:grid;gap:1rem}
+@media(min-width:640px){.cards{grid-template-columns:1fr 1fr}}
+@media(min-width:980px){.cards.c3{grid-template-columns:repeat(3,1fr)}
+                        .cards.c4{grid-template-columns:repeat(4,1fr)}}
+.tile{background:#fff;border:1px solid var(--line);padding:1.15rem 1.15rem 1.25rem;text-decoration:none;
+  display:flex;flex-direction:column;gap:.45rem;transition:border-color .15s}
+a.tile:hover{border-color:var(--navy)}
+.tile .top{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap;margin-bottom:.15rem}
+.tile h3{font-size:1.02rem;font-weight:700;line-height:1.3}
+.tile p{margin:0;font-size:.9rem;color:var(--ink-2)}
+.tile .foot{margin-top:auto;padding-top:.7rem;font-family:var(--ui);font-size:.76rem;color:var(--ink-2)}
+
+/* stats strip */
+.stats{background:var(--navy);color:#fff;border-block:1px solid rgba(210,162,78,.3)}
+.stats-in{display:grid;gap:1.4rem;padding-block:1.8rem}
+@media(min-width:700px){.stats-in{grid-template-columns:repeat(4,1fr)}}
+.stat b{display:block;font-family:var(--ui);font-weight:800;font-size:1.9rem;line-height:1;color:var(--gold)}
+.stat span{display:block;margin-top:.35rem;font-size:.88rem;color:rgba(255,255,255,.75)}
+
+/* cycle chain */
+.cycle{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.4rem;list-style:none;padding:0}
+.cycle li{font-family:var(--ui);font-weight:700;font-size:.8rem;letter-spacing:.06em;
+  background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);padding:.35rem .7rem;border-radius:2px}
+
+/* member cards */
+.people{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+@media(min-width:620px){.people{grid-template-columns:1fr 1fr}}
+@media(min-width:980px){.people{grid-template-columns:repeat(4,1fr)}}
+.person{background:#fff;padding:1.15rem;display:flex;gap:.8rem;align-items:center;text-decoration:none}
+.person:hover{background:var(--paper)}
+.person b{display:block;font-family:var(--ui);font-size:.95rem;font-weight:700}
+.person span{display:block;font-size:.83rem;color:var(--ink-2);margin-top:.1rem}
+
+/* founder panel */
+.founder{background:var(--navy);color:#fff;border-top:3px solid var(--gold)}
+.founder-in{display:grid;gap:2rem;align-items:start}
+@media(min-width:900px){.founder-in{grid-template-columns:.85fr 1.15fr}}
+.founder h2{font-size:clamp(1.5rem,3.4vw,2.15rem);font-weight:800}
+.founder .who{font-family:var(--ui);font-size:1.15rem;font-weight:700;margin:0}
+.founder .cred{color:rgba(255,255,255,.72);font-size:.95rem;margin:.3rem 0 0}
+.founder blockquote{margin:0;padding-left:1.1rem;border-left:2px solid var(--gold);font-size:1.05rem;color:rgba(255,255,255,.9)}
+.founder p.msg{color:rgba(255,255,255,.8)}
+.founder .sig{font-family:var(--ui);font-weight:700;color:var(--gold);font-size:1.05rem;margin-top:1.6rem}
+
+/* detail page */
+.detail{max-width:var(--measure)}
+.detail .lead{font-size:1.1rem;color:var(--ink-2)}
+.detail h2{font-size:1.2rem;font-weight:700;margin-top:2rem}
+.crumbs{font-family:var(--ui);font-size:.8rem;color:rgba(255,255,255,.65);margin-bottom:1rem}
+.crumbs a{color:rgba(255,255,255,.85);text-decoration:none}
+.crumbs a:hover{text-decoration:underline}
+
+/* filter chips */
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:1.4rem 0 0}
+.chips button{font-family:var(--ui);font-weight:600;font-size:.8rem;padding:.35rem .75rem;border-radius:2px;
+  border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--ink-2)}
+.chips button[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* search */
+.search-row{display:flex;gap:.6rem;margin-top:1.4rem;max-width:520px}
+.search-row input{flex:1}
+
+.split{display:grid;gap:2.2rem}
+@media(min-width:900px){.split{grid-template-columns:1.35fr .65fr;align-items:start}}
+.aside{border:1px solid var(--line);background:#fff;padding:1.2rem}
+.aside h3{font-family:var(--ui);font-size:.78rem;letter-spacing:.12em;color:var(--gold-deep);font-weight:700;margin:0 0 .8rem}
+.aside ul{list-style:none;margin:0;padding:0;display:grid;gap:.6rem}
+.aside a{font-size:.92rem;text-decoration:none}
+.aside a:hover{text-decoration:underline}

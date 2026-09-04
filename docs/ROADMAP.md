@@ -1,36 +1,28 @@
 # Roadmap
 
-Dates are anchored to AfCEM 2026, Arusha, 11–13 November 2026.
+Anchored to AfCEM 2026, Arusha, 11–13 November 2026.
 
-## v0.2 — shipped
-Eight sections built. Sections 1–4 and 8 live. Sections 5–7 built and awaiting a
-database connection. Research Spotlight populated with fourteen referenced papers.
+## v0.3 — shipped
+Twelve navigation sections, all functional. Explore with live search and filters.
+Detail page for every content record. Founder's Vision panel and full founder
+message. Member directory reading from the database. Accounts, pillar discussion
+rooms, direct messages and notifications live on Supabase with row-level security.
 
-## v0.3 — connect the platform
-- [ ] Create the Supabase project and run `schema.sql`
-- [ ] Wire `CONFIG` in `api.js`, deploy, verify sign-in end to end
-- [ ] Make the first moderator
-- [ ] Register the domain and set up `hello@` email
-- [ ] Publish the privacy notice and terms of use
-
-## v0.4 — content, not code
-- [ ] Record and publish podcast episode 1
-- [ ] Submit `feed.xml` to Spotify and Apple Podcasts
+## v0.4 — content
+- [ ] Record and publish podcast episode 1; submit feed.xml to Spotify and Apple
+- [ ] Replace each DEMO topic heading with real contributed content
 - [ ] Confirm five Her Voice in EM features with the subjects' consent
-- [ ] Two pieces of clinical content per pillar
 - [ ] Recruit country representatives from the registration list
 
 ## v0.5 — before the conference
-- [ ] Direct message inbox interface (backend and schema already exist)
+- [ ] Direct message inbox interface (schema and API already exist)
 - [ ] Threaded replies in discussion rooms
-- [ ] Search across pillars and the research spotlight
-- [ ] Member directory filtered by country and role
-- [ ] Load test the demo path on a mobile connection
-- [ ] Rehearse the demo offline, in case the venue network fails
+- [ ] Contributor submission form writing to the database
+- [ ] Profile photographs via Supabase storage
+- [ ] Role-based access: contributor, mentor, moderator, editor, admin
+- [ ] Rehearse the demo offline in case the venue network fails
 
-## After AfCEM
-- [ ] Report real registration figures — members, countries, disciplines
-- [ ] Email digest of new posts
-- [ ] Offline reading for low-bandwidth settings
-- [ ] Structured short courses in the Academy stream
-- [ ] Evaluation study: user engagement and educational outcomes
+## Governance, before public launch
+- [ ] Published privacy notice and terms of use
+- [ ] Named data controller and hosting-location decision
+- [ ] Written agreement on ownership, attribution and post-conference scope
