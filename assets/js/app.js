@@ -224,7 +224,6 @@ const aboutView = () => `
   <section><div class="wrap">
     <h2 class="sec-title" style="font-size:1.25rem">How the platform was built</h2>
     <p class="sec-intro">AVE Forum runs on an open, auditable architecture: a static front end that loads on a phone over a mobile connection, and a managed Postgres backend with row-level security governing every read and write. The source is public.</p>
-    <p class="sec-intro">Platform designed and built by <a href="${ORG.builder.url}">${esc(ORG.builder.name)}</a>.</p>
   </div></section>
 </div>`;
 

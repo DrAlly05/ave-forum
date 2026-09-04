@@ -11,8 +11,7 @@ export const ORG = {
   tagline: "Amplifying Africa's Voice in Emergency Care.",
   promise: "Learn. Connect. Share. Innovate. Lead.",
   email: "hello@aveforum.africa",
-  conference: "8th African Conference on Emergency Medicine, Arusha, 11–13 November 2026",
-  builder: { name: "LUNO Mwanajando Technologies", url: "https://lunomj.com/lmt.html" }
+  conference: "8th African Conference on Emergency Medicine, Arusha, 11–13 November 2026"
 };
 
 export const FOUNDER = {
