@@ -344,3 +344,62 @@ a.tile:hover{border-color:var(--navy)}
 .aside ul{list-style:none;margin:0;padding:0;display:grid;gap:.6rem}
 .aside a{font-size:.92rem;text-decoration:none}
 .aside a:hover{text-decoration:underline}
+
+/* ============================================================
+   v0.4 — community feed, comments, DM inbox, media uploader
+   ============================================================ */
+.tabs{display:flex;gap:.3rem;border-bottom:1px solid var(--line);margin-bottom:1.6rem;flex-wrap:wrap}
+.tabs button{font-family:var(--ui);font-weight:600;font-size:.9rem;background:transparent;border:0;
+  padding:.7rem .95rem;cursor:pointer;color:var(--ink-2);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button[aria-selected="true"]{color:var(--navy);border-bottom-color:var(--red)}
+
+.post{border:1px solid var(--line);background:#fff;padding:1.1rem 1.15rem}
+.post + .post{margin-top:.9rem}
+.post-head{display:flex;gap:.7rem;align-items:center}
+.post-head b{font-family:var(--ui);font-size:.92rem;font-weight:700;display:block}
+.post-head span{font-size:.8rem;color:var(--ink-2)}
+.post-body{margin:.75rem 0 0;white-space:pre-wrap}
+.post-actions{display:flex;gap:.5rem;align-items:center;margin-top:.9rem;padding-top:.75rem;border-top:1px solid var(--line)}
+.act{font-family:var(--ui);font-size:.8rem;font-weight:600;background:transparent;border:0;cursor:pointer;
+  color:var(--ink-2);padding:.3rem .5rem;border-radius:2px}
+.act:hover{background:var(--paper-2);color:var(--navy)}
+.act[data-on]{color:var(--red)}
+.comments{margin-top:.9rem;padding-left:.95rem;border-left:2px solid var(--line);display:none}
+.comments[data-open]{display:block}
+.comment{padding:.6rem 0}
+.comment + .comment{border-top:1px solid var(--line)}
+.comment b{font-family:var(--ui);font-size:.85rem}
+.comment time{font-family:var(--ui);font-size:.72rem;color:var(--ink-2);margin-left:.4rem}
+.comment p{margin:.2rem 0 0;font-size:.92rem}
+.comment-form{display:flex;gap:.5rem;margin-top:.7rem}
+.comment-form textarea{min-height:2.4rem;font-size:.92rem}
+
+.composer{border:1px solid var(--line);background:#fff;padding:1.05rem;margin-bottom:1.5rem}
+.composer textarea{min-height:4.5rem}
+.composer-row{display:flex;gap:.6rem;align-items:center;margin-top:.7rem;flex-wrap:wrap}
+.composer select{width:auto;min-width:12rem}
+
+.inbox{display:grid;gap:1.2rem}
+@media(min-width:820px){.inbox{grid-template-columns:16rem 1fr;align-items:start}}
+.thread-list{list-style:none;margin:0;padding:0;border:1px solid var(--line);background:#fff;max-height:26rem;overflow-y:auto}
+.thread-list li + li{border-top:1px solid var(--line)}
+.thread-list button{width:100%;text-align:left;background:transparent;border:0;padding:.75rem .85rem;cursor:pointer}
+.thread-list button:hover{background:var(--paper)}
+.thread-list button[aria-selected="true"]{background:var(--navy);color:#fff}
+.thread-list b{font-family:var(--ui);font-size:.88rem;display:block}
+.thread-list span{font-size:.8rem;color:var(--ink-2);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.thread-list button[aria-selected="true"] span{color:rgba(255,255,255,.7)}
+.unread-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-left:.35rem}
+
+.dm{display:flex;margin-bottom:.7rem}
+.dm .msg-bubble{max-width:78%;padding:.6rem .8rem;border-radius:4px;font-size:.94rem;background:var(--paper-2)}
+.dm.me{justify-content:flex-end}
+.dm.me .msg-bubble{background:var(--navy);color:#fff}
+.dm time{display:block;font-family:var(--ui);font-size:.68rem;opacity:.7;margin-top:.25rem}
+
+.drop{border:1px dashed rgba(3,30,60,.35);background:rgba(210,162,78,.05);padding:1.5rem;text-align:center;border-radius:3px}
+.drop input[type=file]{margin-top:.7rem}
+.bar-progress{height:4px;background:var(--paper-2);border-radius:2px;overflow:hidden;margin-top:.8rem;display:none}
+.bar-progress[data-on]{display:block}
+.bar-progress i{display:block;height:100%;background:var(--red);width:35%;animation:slide 1.1s ease-in-out infinite}
+@keyframes slide{0%{margin-left:-35%}100%{margin-left:100%}}

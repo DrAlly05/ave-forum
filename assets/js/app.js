@@ -20,8 +20,8 @@ let SESSION = null, PROFILE = null;
 
 /* every seeded record, indexed for detail pages and search */
 const LIBRARY = [
-  ...CASES.map(x       => ({ ...x, type:"clinical",   typeName:"Clinical" })),
-  ...STORIES.map(x     => ({ ...x, type:"stories",    typeName:"Frontline Stories" })),
+  ...CASES.map(x       => ({ ...x, type:"knowledge",  typeName:"Knowledge" })),
+  ...STORIES.map(x     => ({ ...x, type:"knowledge",  typeName:"Frontline Stories" })),
   ...INNOVATIONS.map(x => ({ ...x, type:"innovation", typeName:"Innovation" })),
   ...MEDIA.map(x       => ({ ...x, type:"media",      typeName:"AVE Media", cat:x.kind })),
   ...EVENTS.map(x      => ({ ...x, type:"events",     typeName:"Events", cat:x.kind })),
@@ -174,29 +174,51 @@ const founderPanel = () => `
    ============================================================ */
 const aboutView = () => `
 <div class="view" id="v-about">
-  ${head("About","About AVE Forum", `${ORG.full} — a pan-African digital ecosystem for emergency care education, research translation, innovation, leadership and professional collaboration.`)}
+  ${head("About","About AVE Forum", ORG.tagline)}
   <section><div class="wrap">
-    <div class="split">
+    <p class="sec-intro" style="max-width:var(--measure)">${esc(ABOUT.rationale)}</p>
+
+    <div class="split" style="margin-top:2.4rem">
       <div>
         <h2 class="sec-title" style="font-size:1.25rem">Vision</h2>
         <p class="sec-intro">${esc(ABOUT.vision)}</p>
         <h2 class="sec-title" style="font-size:1.25rem;margin-top:2rem">Mission</h2>
         <p class="sec-intro">${esc(ABOUT.mission)}</p>
-        <h2 class="sec-title" style="font-size:1.25rem;margin-top:2rem">Where this came from</h2>
-        ${ABOUT.story.map(p => `<p class="sec-intro">${esc(p)}</p>`).join("")}
+        <h2 class="sec-title" style="font-size:1.25rem;margin-top:2rem">Our purpose</h2>
+        <p class="sec-intro"><strong>${esc(ABOUT.purpose)}</strong></p>
+        <p class="sec-intro">${esc(ABOUT.purposeBody)}</p>
+        <h2 class="sec-title" style="font-size:1.25rem;margin-top:2rem">Our promise</h2>
+        <p class="sec-intro">${esc(ABOUT.promise)}</p>
+        <h2 class="sec-title" style="font-size:1.25rem;margin-top:2rem">Our ambition</h2>
+        <p class="sec-intro"><strong>${esc(ABOUT.ambition)}</strong></p>
+        <p class="sec-intro">${esc(ABOUT.ambitionBody)}</p>
       </div>
       <div class="aside">
-        <h3>THE ECOSYSTEM</h3>
-        <ul>${ABOUT.cycle.map(c => `<li><strong>${esc(c)}</strong></li>`).join("")}</ul>
-        <h3 style="margin-top:1.6rem">THE PILLARS</h3>
+        <h3>OUR TAGLINE</h3>
+        <p style="font-family:var(--ui);font-weight:700;font-size:1.05rem;margin:0 0 1.4rem">&ldquo;${esc(ORG.tagline)}&rdquo;</p>
+        <h3>CORE PILLARS</h3>
         <ul>${PILLARS.map(p => `<li><a href="#/${p.id}">${esc(p.n)} ${esc(p.name)}</a></li>`).join("")}</ul>
+        <h3 style="margin-top:1.6rem">THE ECOSYSTEM</h3>
+        <ul>${ABOUT.cycle.map(c => `<li><strong>${esc(c)}</strong></li>`).join("")}</ul>
       </div>
     </div>
 
-    <h2 class="sec-title" style="font-size:1.25rem;margin-top:2.8rem">Core values</h2>
+    <h2 class="sec-title" style="font-size:1.25rem;margin-top:3rem">Our values</h2>
     <div class="cards c3" style="margin-top:1.4rem">
-      ${VALUES.map(([t,d]) => `<div class="tile"><h3>${esc(t)}</h3><p>${esc(d)}</p></div>`).join("")}
+      ${VALUES.map(([t,d],i) => `<div class="tile"><div class="top"><span class="badge cat">${String(i+1).padStart(2,"0")}</span></div><h3>${esc(t)}</h3><p>${esc(d)}</p></div>`).join("")}
     </div>
+
+    <h2 class="sec-title" style="font-size:1.25rem;margin-top:3rem">Our core pillars</h2>
+    <div class="cards c3" style="margin-top:1.4rem">
+      ${PILLARS.map(p => `<a class="tile" href="#/${p.id}">
+        <div class="top"><span class="badge cat">${esc(p.n)}</span></div>
+        <h3>${esc(p.name)}</h3>
+        <p style="font-family:var(--ui);font-weight:600;color:var(--gold-deep);font-size:.85rem">${esc(p.motto)}</p>
+        <p>${esc(p.lede)}</p></a>`).join("")}
+    </div>
+
+    <h2 class="sec-title" style="font-size:1.25rem;margin-top:3rem">Where this came from</h2>
+    <div class="narrow">${ABOUT.story.map(x => `<p class="sec-intro">${esc(x)}</p>`).join("")}</div>
   </div></section>
 
   <div class="founder"><div class="wrap" style="padding-block:clamp(2.6rem,6vw,4rem)">
@@ -213,18 +235,13 @@ const aboutView = () => `
         <p class="sig" style="font-size:.95rem">${esc(FOUNDER.principle)}</p>
       </div>
       <div>
-        ${FOUNDER.message.map(p => `<p class="msg">${esc(p)}</p>`).join("")}
+        ${FOUNDER.message.map(x => `<p class="msg">${esc(x)}</p>`).join("")}
         <h3 style="font-family:var(--ui);color:var(--gold);font-size:.78rem;letter-spacing:.13em;margin:1.8rem 0 .6rem">THE LEGACY WE ARE BUILDING</h3>
         <blockquote>${esc(FOUNDER.legacy)}</blockquote>
         <p class="sig">&ldquo;${esc(FOUNDER.signature)}&rdquo;</p>
       </div>
     </div>
   </div></div>
-
-  <section><div class="wrap">
-    <h2 class="sec-title" style="font-size:1.25rem">How the platform was built</h2>
-    <p class="sec-intro">AVE Forum runs on an open, auditable architecture: a static front end that loads on a phone over a mobile connection, and a managed Postgres backend with row-level security governing every read and write. The source is public.</p>
-  </div></section>
 </div>`;
 
 /* ============================================================
@@ -239,11 +256,10 @@ const exploreView = () => `
     </div>
     <div class="chips" id="exploreChips">
       <button aria-pressed="true" data-f="all">All</button>
-      <button aria-pressed="false" data-f="clinical">Clinical</button>
+      <button aria-pressed="false" data-f="knowledge">Knowledge</button>
       <button aria-pressed="false" data-f="research">Research</button>
       <button aria-pressed="false" data-f="media">Media</button>
       <button aria-pressed="false" data-f="events">Events</button>
-      <button aria-pressed="false" data-f="stories">Stories</button>
       <button aria-pressed="false" data-f="innovation">Innovation</button>
     </div>
     <p class="form-note" id="exploreCount" style="margin-top:1rem"></p>
@@ -276,15 +292,15 @@ function wireExplore() {
    4-10. PILLAR SECTIONS
    ============================================================ */
 const sectionFeed = {
-  clinical:   () => CASES.map(x => tile({...x, typeName:"Clinical"})),
-  stories:    () => STORIES.map(x => tile({...x, typeName:"Frontline Stories"})),
+  knowledge:  () => [...CASES.map(x => tile({...x, typeName:"Knowledge"})),
+                     ...STORIES.map(x => tile({...x, typeName:"Frontline Stories"}))],
   innovation: () => INNOVATIONS.map(x => tile({...x, typeName:"Innovation"})),
   research:   () => PAPERS.map(p => tile({...p, cat:p.topic, typeName:"Research", teaser:`${p.authors} · ${p.journal}`}))
 };
 
 const pillarView = p => `
 <div class="view" id="v-${p.id}">
-  ${head(`Pillar ${p.n}`, p.name, p.lede)}
+  ${head(`Pillar ${p.n} · ${p.motto}`, p.name, p.lede)}
   <section><div class="wrap">
     <div class="split">
       <div>
@@ -319,20 +335,139 @@ const mediaView = () => `
 <div class="view" id="v-media">
   ${head("AVE Media","AVE Media","Podcast, video, interviews and live sessions. Conversations with the people building emergency care across Africa.")}
   <section><div class="wrap">
-    ${rail("Podcast","Episodes",null)}
-    <div class="cards c3">${MEDIA.map(x => tile({...x, cat:x.kind, typeName:"AVE Media"})).join("")}</div>
+    <div id="mediaUpload"></div>
+    ${rail("Library","Published media",null)}
+    <div id="mediaLibrary"><p class="empty">Loading…</p></div>
 
-    <h2 class="sec-title" style="font-size:1.25rem;margin-top:2.6rem">Live broadcast</h2>
-    <div class="slot" style="margin-top:1.1rem">
-      <h3>No broadcast scheduled</h3>
-      <p>Grand rounds, journal club and conference sessions stream here. Members are told first.</p>
-    </div>
+    <h2 class="sec-title" style="font-size:1.25rem;margin-top:2.8rem">Planned episodes</h2>
+    <div class="cards c3" style="margin-top:1.3rem">${MEDIA.map(x => tile({...x, cat:x.kind, typeName:"AVE Media"})).join("")}</div>
 
-    <h2 class="sec-title" style="font-size:1.25rem;margin-top:2.6rem">Subscribe</h2>
+    <h2 class="sec-title" style="font-size:1.25rem;margin-top:2.8rem">Subscribe</h2>
     <p class="sec-intro">The podcast feed lives at <code>/feed.xml</code> and is submitted to Spotify and Apple Podcasts as episodes publish.</p>
-    <p style="margin-top:1.2rem"><a class="btn dark" href="#/register">Be a guest</a></p>
   </div></section>
 </div>`;
+
+async function renderMedia() {
+  const up = $("#mediaUpload"), lib = $("#mediaLibrary");
+  if (!up || !lib) return;
+
+  if (!api.isLive()) {
+    up.innerHTML = previewBanner();
+    lib.innerHTML = `<p class="empty">Uploaded media appears here once the database is connected.</p>`;
+    return;
+  }
+
+  /* ---- uploader ---- */
+  if (!SESSION) {
+    up.innerHTML = `<div class="gate"><h3>Contributors upload here</h3>
+      <p>Sign in to upload audio, video, images or documents. Upload rights are granted to contributors.</p>
+      <p style="margin-top:1rem"><a class="btn dark" href="#/profile">Sign in</a></p></div>`;
+  } else if (!(await api.canUpload())) {
+    up.innerHTML = `<div class="gate"><h3>Request upload access</h3>
+      <p>Uploading is limited to contributors so that published media stays reviewed. Tell us what you would like to contribute and we will enable it on your account.</p>
+      <p style="margin-top:1rem"><a class="btn dark" href="#/register">Request contributor access</a></p></div>`;
+  } else {
+    up.innerHTML = `
+      <div class="composer">
+        <h3 style="font-family:var(--ui);font-size:1.02rem;font-weight:700;margin:0 0 .8rem">Upload media</h3>
+        <form class="form" id="uploadForm" style="max-width:none;margin-top:0">
+          <div class="two">
+            <div><label for="u-title">Title</label><input id="u-title" name="title" required minlength="3"></div>
+            <div><label for="u-kind">Type</label><select id="u-kind" name="kind" required>
+              <option value="podcast">Podcast episode</option>
+              <option value="video">Video</option>
+              <option value="interview">Interview</option>
+              <option value="image">Image</option>
+              <option value="document">Document</option>
+            </select></div>
+          </div>
+          <div><label for="u-desc">Description</label><textarea id="u-desc" name="description" rows="2"></textarea></div>
+          <div><label for="u-pillar">Pillar</label><select id="u-pillar" name="pillar">
+            ${PILLARS.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("")}
+          </select></div>
+          <div class="drop">
+            <p style="margin:0;font-size:.93rem;color:var(--ink-2)">Audio, video, image or PDF. Maximum 100 MB.</p>
+            <input type="file" id="u-file" name="file" required
+                   accept="audio/*,video/*,image/*,application/pdf">
+          </div>
+          <label class="check"><input type="checkbox" name="published" checked>
+            <span>Publish immediately. Uncheck to save as a draft only you and moderators can see.</span></label>
+          <label class="check"><input type="checkbox" name="consent" required>
+            <span>I hold the rights to this file, everyone recorded has consented, and it contains no patient-identifiable information.</span></label>
+          <div><button class="btn" type="submit">Upload</button></div>
+          <div class="bar-progress" id="upBar"><i></i></div>
+          <div class="msg" id="uploadMsg"></div>
+        </form>
+      </div>`;
+    wireUpload();
+  }
+
+  /* ---- library ---- */
+  const rows = await api.listMedia();
+  lib.innerHTML = rows.length ? rows.map(mediaCard).join("")
+    : `<p class="empty">No media published yet. When a contributor uploads an episode it appears here.</p>`;
+}
+
+const mediaCard = m => {
+  const url = api.mediaUrl(m.storage_path);
+  const isAudio = (m.mime || "").startsWith("audio");
+  const isVideo = (m.mime || "").startsWith("video");
+  const isImage = (m.mime || "").startsWith("image");
+  return `
+    <div class="post" data-media="${esc(m.id)}">
+      <div class="top" style="display:flex;gap:.45rem;margin-bottom:.6rem">
+        <span class="badge cat">${esc(m.kind)}</span>
+        ${m.published ? "" : `<span class="badge demo">DRAFT</span>`}
+      </div>
+      <h3 style="font-family:var(--ui);font-size:1.08rem;font-weight:700">${esc(m.title)}</h3>
+      ${m.description ? `<p class="post-body">${esc(m.description)}</p>` : ""}
+      ${isAudio ? `<audio controls preload="none" src="${esc(url)}" style="width:100%;margin-top:.9rem"></audio>` : ""}
+      ${isVideo ? `<div class="embed" style="margin-top:.9rem"><video controls preload="none" src="${esc(url)}" style="position:absolute;inset:0;width:100%;height:100%"></video></div>` : ""}
+      ${isImage ? `<img src="${esc(url)}" alt="${esc(m.title)}" loading="lazy" style="margin-top:.9rem;border:1px solid var(--line)">` : ""}
+      ${!isAudio && !isVideo && !isImage ? `<p style="margin-top:.8rem"><a class="btn dark sm" href="${esc(url)}" target="_blank" rel="noopener">Open file</a></p>` : ""}
+      <div class="post-actions">
+        <span style="font-family:var(--ui);font-size:.78rem;color:var(--ink-2)">
+          ${esc(m.profiles?.full_name || "Contributor")}${m.profiles?.country ? " · " + esc(m.profiles.country) : ""} · ${when(m.created_at)}
+        </span>
+        <button class="act" data-comments="media:${esc(m.id)}" style="margin-left:auto">Comments</button>
+      </div>
+      <div class="comments" id="cm-media-${esc(m.id)}"></div>
+    </div>`;
+};
+
+function wireUpload() {
+  const form = $("#uploadForm"); if (!form) return;
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const btn = form.querySelector("button[type=submit]"), msg = $("#uploadMsg"), bar = $("#upBar");
+    const file = $("#u-file").files[0];
+    if (!file) return;
+    if (file.size > 104857600) {
+      msg.className = "msg err"; msg.setAttribute("data-on","");
+      msg.textContent = "That file is larger than 100 MB. Compress it or host it elsewhere and link to it.";
+      return;
+    }
+    btn.disabled = true; btn.textContent = "Uploading…"; bar.setAttribute("data-on","");
+    msg.removeAttribute("data-on");
+    try {
+      await api.uploadMedia(file, {
+        kind: form.kind.value,
+        title: form.title.value,
+        description: form.description.value,
+        pillar: form.pillar.value,
+        published: form.published.checked
+      });
+      msg.className = "msg good"; msg.setAttribute("data-on","");
+      msg.textContent = "Uploaded. It appears in the library below.";
+      form.reset();
+      await renderMedia();
+    } catch (err) {
+      msg.className = "msg err"; msg.setAttribute("data-on","");
+      msg.textContent = "Upload failed: " + (err.message || err);
+    }
+    btn.disabled = false; btn.textContent = "Upload"; bar.removeAttribute("data-on");
+  });
+}
 
 /* ============================================================
    12. EVENTS
@@ -354,46 +489,261 @@ const eventsView = () => `
    ============================================================ */
 const communityView = () => `
 <div class="view" id="v-community">
-  ${head("Community","Community","Members, country representatives and mentorship. Everyone who works in African emergency care belongs here.")}
+  ${head("Pillar 04 · One profession. Many voices. One Africa.","Community","Building a connected community where emergency care professionals can exchange ideas, experiences, opportunities, and solutions.")}
   <section><div class="wrap">
-    <div class="split">
-      <div>
-        ${rail("Directory","Members",null)}
-        <div id="directory"><p class="empty">Loading members…</p></div>
-      </div>
-      <div class="aside">
-        <h3>DISCUSSION ROOMS</h3>
-        <ul>${PILLARS.map(p => `<li><a href="#/discussion?pillar=${p.id}">${esc(p.name)}</a></li>`).join("")}</ul>
-        <h3 style="margin-top:1.6rem">MENTORSHIP</h3>
-        <p style="font-size:.9rem;color:var(--ink-2);margin:0 0 .9rem">Ask to be paired with an established professional, or offer to mentor.</p>
-        <a class="btn sm" href="#/register">Request or offer mentorship</a>
-        <h3 style="margin-top:1.6rem">COUNTRY REPRESENTATIVES</h3>
-        <p style="font-size:.9rem;color:var(--ink-2);margin:0">Representatives are drawn from the membership. Say so when you register.</p>
-      </div>
+    <div class="tabs" id="commTabs">
+      <button data-tab="feed" aria-selected="true">Feed</button>
+      <button data-tab="rooms" aria-selected="false">Discussion rooms</button>
+      <button data-tab="messages" aria-selected="false">Messages</button>
+      <button data-tab="members" aria-selected="false">Members</button>
+    </div>
+    <div id="commBody"><p class="empty">Loading…</p></div>
+
+    <h2 class="sec-title" style="font-size:1.25rem;margin-top:3rem">What this pillar covers</h2>
+    <div style="margin-top:1.3rem;max-width:var(--measure)">
+      ${(PILLARS.find(p => p.id === "community") || {items:[]}).items
+        .map(([t,d]) => `<div class="paper"><h3>${esc(t)}</h3><p class="jrnl">${esc(d)}</p></div>`).join("")}
     </div>
   </div></section>
 </div>`;
 
-async function renderDirectory() {
-  const el = $("#directory"); if (!el) return;
-  if (!api.isLive()) { el.innerHTML = `<p class="empty">The member directory opens when the database is connected.</p>`; return; }
+let COMM_TAB = "feed";
+
+async function renderCommunity(tab) {
+  COMM_TAB = tab || COMM_TAB;
+  $$("#commTabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === COMM_TAB)));
+  const el = $("#commBody"); if (!el) return;
+
+  if (!api.isLive()) { el.innerHTML = previewBanner() + `<p class="empty">The community opens when the database is connected.</p>`; return; }
   if (!SESSION) {
     el.innerHTML = `<div class="gate"><h3>Members only</h3>
-      <p>The directory is visible to signed-in members, so people's details are not exposed publicly.</p>
+      <p>The feed, rooms, messages and member directory are visible to signed-in members, so nobody's details are exposed publicly.</p>
       <p style="margin-top:1rem"><a class="btn dark" href="#/profile">Sign in</a>
       <a class="btn" href="#/register" style="margin-left:.5rem">Join</a></p></div>`;
     return;
   }
+
+  if (COMM_TAB === "feed")     return renderFeed(el);
+  if (COMM_TAB === "rooms")    return renderRooms(el);
+  if (COMM_TAB === "messages") return renderInbox(el);
+  if (COMM_TAB === "members")  return renderMembers(el);
+}
+
+/* ---------------- feed ---------------- */
+async function renderFeed(el) {
+  el.innerHTML = `
+    <div class="composer">
+      <form id="feedForm">
+        <label for="fp-body" class="sr">Post</label>
+        <textarea id="fp-body" name="body" rows="3" placeholder="Share a question, a case, an opportunity or an idea…" required></textarea>
+        <div class="composer-row">
+          <select name="pillar" aria-label="Pillar">
+            ${PILLARS.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("")}
+          </select>
+          <button class="btn" type="submit">Post</button>
+          <span class="form-note" style="margin:0">No patient-identifiable information.</span>
+        </div>
+      </form>
+    </div>
+    <div id="feedList"><p class="empty">Loading…</p></div>`;
+
+  $("#feedForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const body = e.target.body.value.trim(); if (!body) return;
+    e.target.body.value = "";
+    try { await api.createPost(e.target.pillar.value, body); await loadFeed(); }
+    catch (err) { alert("Could not post: " + err.message); }
+  });
+  await loadFeed();
+}
+
+async function loadFeed() {
+  const list = $("#feedList"); if (!list) return;
+  const rows = await api.recentPosts(40);
+  list.innerHTML = rows.length ? rows.map(postCard).join("")
+    : `<p class="empty">Nothing here yet. Be the first to post.</p>`;
+  wireCards(list);
+}
+
+const postCard = p => `
+  <div class="post" data-post="${esc(p.id)}">
+    <div class="post-head">
+      <div class="avatar">${esc(initials(p.profiles?.full_name))}</div>
+      <div>
+        <b>${esc(p.profiles?.full_name || "Member")}</b>
+        <span>${esc([p.profiles?.role, p.profiles?.country].filter(Boolean).join(" · "))} · ${when(p.created_at)}</span>
+      </div>
+      <span class="badge cat" style="margin-left:auto">${esc((PILLARS.find(x => x.id === p.pillar) || {}).name || p.pillar)}</span>
+    </div>
+    <p class="post-body">${esc(p.body)}</p>
+    <div class="post-actions">
+      <button class="act" data-like="post:${esc(p.id)}">Like</button>
+      <button class="act" data-comments="post:${esc(p.id)}">Comment</button>
+    </div>
+    <div class="comments" id="cm-post-${esc(p.id)}"></div>
+  </div>`;
+
+/* ---------------- comments + likes (shared) ---------------- */
+function wireCards(scope) {
+  $$("[data-comments]", scope).forEach(b => {
+    if (b.dataset.wired) return; b.dataset.wired = "1";
+    b.addEventListener("click", async () => {
+      const [type, id] = b.dataset.comments.split(":");
+      const box = document.getElementById(`cm-${type}-${id}`);
+      if (box.hasAttribute("data-open")) { box.removeAttribute("data-open"); return; }
+      box.setAttribute("data-open","");
+      await loadComments(type, id, box);
+    });
+  });
+  $$("[data-like]", scope).forEach(b => {
+    if (b.dataset.wired) return; b.dataset.wired = "1";
+    const [type, id] = b.dataset.like.split(":");
+    api.likeCount(type, id).then(({count, mine}) => {
+      b.textContent = count ? `Like · ${count}` : "Like";
+      if (mine) b.setAttribute("data-on","");
+    });
+    b.addEventListener("click", async () => {
+      try {
+        const now = await api.toggleLike(type, id);
+        now ? b.setAttribute("data-on","") : b.removeAttribute("data-on");
+        const { count } = await api.likeCount(type, id);
+        b.textContent = count ? `Like · ${count}` : "Like";
+      } catch (err) { alert(err.message); }
+    });
+  });
+}
+
+async function loadComments(type, id, box) {
+  const rows = await api.listComments(type, id);
+  box.innerHTML = `
+    ${rows.length ? rows.map(c => `
+      <div class="comment">
+        <b>${esc(c.profiles?.full_name || "Member")}</b><time>${when(c.created_at)}</time>
+        <p>${esc(c.body)}</p>
+      </div>`).join("") : `<p class="empty" style="padding:.8rem 0">No comments yet.</p>`}
+    <form class="comment-form">
+      <textarea name="body" rows="1" placeholder="Write a comment…" required></textarea>
+      <button class="btn sm" type="submit">Send</button>
+    </form>`;
+  box.querySelector("form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const body = e.target.body.value.trim(); if (!body) return;
+    try { await api.addComment(type, id, body); await loadComments(type, id, box); }
+    catch (err) { alert("Could not comment: " + err.message); }
+  });
+}
+
+/* ---------------- rooms ---------------- */
+async function renderRooms(el) {
+  el.innerHTML = `
+    <div class="warn"><strong>No patient-identifiable information.</strong> Remove names, hospital numbers, dates of birth, photographs and any detail that could identify a patient before you post.</div>
+    <div class="chat-shell">
+      <ul class="room-list" role="tablist">
+        ${PILLARS.map((p,i) => `<li><button role="tab" data-room="${p.id}" aria-selected="${i===0}">${esc(p.name)}</button></li>`).join("")}
+      </ul>
+      <div class="thread">
+        <div class="thread-body" id="threadBody"><p class="empty">Loading…</p></div>
+        <form class="thread-form" id="postForm">
+          <textarea name="body" rows="1" placeholder="Write to the room…" required></textarea>
+          <button class="btn" type="submit">Post</button>
+        </form>
+      </div>
+    </div>`;
+  let active = PILLARS[0].id;
+  $$("[data-room]").forEach(b => b.addEventListener("click", async () => {
+    active = b.dataset.room;
+    $$("[data-room]").forEach(o => o.setAttribute("aria-selected", String(o === b)));
+    await loadRoom(active);
+  }));
+  await loadRoom(active);
+  $("#postForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const ta = e.target.querySelector("textarea"), body = ta.value.trim();
+    if (!body) return; ta.value = "";
+    try { await api.createPost(active, body); await loadRoom(active); }
+    catch (err) { alert("Could not post: " + err.message); }
+  });
+}
+
+/* ---------------- direct message inbox ---------------- */
+let dmOther = null, unsubDm = () => {};
+
+async function renderInbox(el) {
+  const threads = await api.listThreads();
+  el.innerHTML = `
+    <div class="inbox">
+      <ul class="thread-list" id="threadList">
+        ${threads.length ? threads.map(t => `
+          <li><button data-thread="${esc(t.other_id)}" aria-selected="false">
+            <b>${esc(t.full_name || "Member")}${Number(t.unread) ? `<span class="unread-dot"></span>` : ""}</b>
+            <span>${esc((t.last_body || "").slice(0,48))}</span>
+          </button></li>`).join("")
+          : `<li style="padding:1rem;color:var(--ink-2);font-size:.9rem">No conversations yet. Open a member from the Members tab to start one.</li>`}
+      </ul>
+      <div class="thread">
+        <div class="thread-body" id="dmBody"><p class="empty">Select a conversation.</p></div>
+        <form class="thread-form" id="dmForm">
+          <textarea name="body" rows="1" placeholder="Write a message…" disabled></textarea>
+          <button class="btn" type="submit" disabled>Send</button>
+        </form>
+      </div>
+    </div>`;
+
+  $$("[data-thread]").forEach(b => b.addEventListener("click", () => openThread(b.dataset.thread, b)));
+  $("#dmForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const ta = e.target.querySelector("textarea"), body = ta.value.trim();
+    if (!body || !dmOther) return; ta.value = "";
+    try { await api.sendMessage(dmOther, body); await drawThread(); }
+    catch (err) { alert("Could not send: " + err.message); }
+  });
+
+  unsubDm();
+  unsubDm = await api.subscribeMessages(async () => { if (dmOther) await drawThread(); await refreshBadge(); });
+  if (threads.length) openThread(threads[0].other_id, $("[data-thread]"));
+}
+
+async function openThread(otherId, btn) {
+  dmOther = otherId;
+  $$("[data-thread]").forEach(o => o.setAttribute("aria-selected", String(o === btn)));
+  $("#dmForm textarea").disabled = false;
+  $("#dmForm button").disabled = false;
+  await api.markThreadRead(otherId);
+  await drawThread();
+  await refreshBadge();
+}
+
+async function drawThread() {
+  const box = $("#dmBody"); if (!box || !dmOther) return;
+  const rows = await api.listMessages(dmOther);
+  box.innerHTML = rows.length ? rows.map(m => `
+    <div class="dm ${m.sender_id === SESSION.id ? "me" : ""}">
+      <div class="msg-bubble">${esc(m.body)}<time>${when(m.created_at)}</time></div>
+    </div>`).join("") : `<p class="empty">No messages yet. Say hello.</p>`;
+  box.scrollTop = box.scrollHeight;
+}
+
+/* ---------------- members ---------------- */
+async function renderMembers(el) {
   const rows = await api.directory();
   el.innerHTML = rows.length
     ? `<div class="people">${rows.map(p => `
-        <a class="person" href="#/discussion">
+        <div class="person">
           <div class="avatar">${esc(initials(p.full_name))}</div>
-          <div><b>${esc(p.full_name || "Member")}${p.is_country_rep ? ` <span class="badge nav">REP</span>` : ""}</b>
+          <div style="flex:1">
+            <b>${esc(p.full_name || "Member")}${p.is_country_rep ? ` <span class="badge nav">REP</span>` : ""}</b>
             <span>${esc([p.role, p.institution].filter(Boolean).join(" · ") || "Member")}</span>
-            <span>${esc(p.country || "")}</span></div>
-        </a>`).join("")}</div>`
+            <span>${esc(p.country || "")}</span>
+            ${p.id === SESSION.id ? "" : `<button class="act" data-dm="${esc(p.id)}" style="padding-left:0;margin-top:.3rem">Message</button>`}
+          </div>
+        </div>`).join("")}</div>`
     : `<p class="empty">No members yet. You could be the first.</p>`;
+
+  $$("[data-dm]").forEach(b => b.addEventListener("click", async () => {
+    await api.sendMessage(b.dataset.dm, "Hello — reaching out through AVE Forum.")
+      .catch(err => alert("Could not start the conversation: " + err.message));
+    renderCommunity("messages");
+  }));
 }
 
 /* ============================================================
@@ -700,7 +1050,7 @@ function wireRegister() {
 function build() {
   $("#views").innerHTML =
     homeView() + aboutView() + exploreView() +
-    PILLARS.map(pillarView).join("") +
+    PILLARS.filter(p => p.id !== "community").map(pillarView).join("") +
     mediaView() + eventsView() + communityView() +
     profileView() + discussionView() + notificationsView() + registerView() + itemView();
 
@@ -733,7 +1083,8 @@ function route() {
 
   if (id === "v-item")          renderItem(parts[1]);
   if (id === "v-explore")       wireExplore();
-  if (id === "v-community")     renderDirectory();
+  if (id === "v-media")         renderMedia();
+  if (id === "v-community")     renderCommunity();
   if (id === "v-profile")       renderProfileBody();
   if (id === "v-discussion")    renderDiscussionBody(params.get("pillar"));
   if (id === "v-notifications") renderNotifBody();
@@ -758,6 +1109,10 @@ async function boot() {
   document.addEventListener("keydown", e => { if (e.key === "Escape") closePanel(); });
   panel().addEventListener("click", e => { if (e.target.closest("[data-close]")) closePanel(); });
   window.addEventListener("hashchange", route);
+  document.addEventListener("click", e => {
+    const t = e.target.closest("#commTabs button");
+    if (t) renderCommunity(t.dataset.tab);
+  });
 
   if (api.isLive()) {
     SESSION = await api.currentUser();

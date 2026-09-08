@@ -185,3 +185,150 @@ export async function register(entry) {
   const { error } = await c.from("registrations").insert(entry);
   if (error) throw error;
 }
+
+/* ============================================================
+   v0.4 — media uploads, comments, likes, direct-message inbox
+   ============================================================ */
+
+/* ---------------- media (Supabase Storage) ---------------- */
+
+export async function listMedia() {
+  const c = await db(); if (!c) return [];
+  const { data } = await c
+    .from("media")
+    .select("id,kind,title,description,storage_path,mime,bytes,published,created_at,profiles(full_name,country,role)")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  return data ?? [];
+}
+
+export function mediaUrl(path) {
+  if (!CONFIG.SUPABASE_URL || !path) return "";
+  return `${CONFIG.SUPABASE_URL}/storage/v1/object/public/media/${path}`;
+}
+
+/** Upload a File and create its media row. onProgress is optional. */
+export async function uploadMedia(file, { kind, title, description, pillar, published = false }) {
+  const c = await db(); if (!c) throw new Error("Database not connected");
+  const user = await currentUser(); if (!user) throw new Error("Sign in first");
+
+  const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-80);
+  const path = `${user.id}/${Date.now()}-${safe}`;
+
+  const { error: upErr } = await c.storage.from("media").upload(path, file, {
+    cacheControl: "31536000",
+    contentType: file.type || "application/octet-stream",
+    upsert: false
+  });
+  if (upErr) throw upErr;
+
+  const { error: rowErr } = await c.from("media").insert({
+    uploader_id: user.id, kind, title, description, pillar,
+    storage_path: path, mime: file.type, bytes: file.size, published
+  });
+  if (rowErr) {
+    await c.storage.from("media").remove([path]);   // don't leave orphaned files
+    throw rowErr;
+  }
+  return path;
+}
+
+export async function canUpload() {
+  const c = await db(); if (!c) return false;
+  const user = await currentUser(); if (!user) return false;
+  const { data } = await c.from("profiles").select("is_contributor,is_moderator").eq("id", user.id).maybeSingle();
+  return Boolean(data?.is_contributor || data?.is_moderator);
+}
+
+/* ---------------- comments ---------------- */
+
+export async function listComments(targetType, targetId) {
+  const c = await db(); if (!c) return [];
+  const { data } = await c
+    .from("comments")
+    .select("id,body,created_at,author_id,profiles(full_name,country,role)")
+    .eq("target_type", targetType).eq("target_id", String(targetId))
+    .order("created_at", { ascending: true })
+    .limit(200);
+  return data ?? [];
+}
+
+export async function addComment(targetType, targetId, body) {
+  const c = await db(); if (!c) throw new Error("Database not connected");
+  const user = await currentUser(); if (!user) throw new Error("Sign in first");
+  const { error } = await c.from("comments")
+    .insert({ target_type: targetType, target_id: String(targetId), author_id: user.id, body });
+  if (error) throw error;
+}
+
+export async function subscribeComments(targetType, targetId, fn) {
+  const c = await db(); if (!c) return () => {};
+  const ch = c.channel(`comments:${targetType}:${targetId}`)
+    .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "comments", filter: `target_id=eq.${targetId}` },
+        p => fn(p.new))
+    .subscribe();
+  return () => c.removeChannel(ch);
+}
+
+/* ---------------- likes ---------------- */
+
+export async function likeCount(targetType, targetId) {
+  const c = await db(); if (!c) return { count: 0, mine: false };
+  const user = await currentUser();
+  const { count } = await c.from("likes").select("user_id", { count: "exact", head: true })
+    .eq("target_type", targetType).eq("target_id", String(targetId));
+  let mine = false;
+  if (user) {
+    const { data } = await c.from("likes").select("user_id")
+      .eq("target_type", targetType).eq("target_id", String(targetId)).eq("user_id", user.id).maybeSingle();
+    mine = Boolean(data);
+  }
+  return { count: count ?? 0, mine };
+}
+
+export async function toggleLike(targetType, targetId) {
+  const c = await db(); if (!c) throw new Error("Database not connected");
+  const user = await currentUser(); if (!user) throw new Error("Sign in first");
+  const { mine } = await likeCount(targetType, targetId);
+  if (mine) {
+    await c.from("likes").delete()
+      .eq("target_type", targetType).eq("target_id", String(targetId)).eq("user_id", user.id);
+    return false;
+  }
+  await c.from("likes").insert({ target_type: targetType, target_id: String(targetId), user_id: user.id });
+  return true;
+}
+
+/* ---------------- direct-message inbox ---------------- */
+
+export async function markThreadRead(otherId) {
+  const c = await db(); if (!c) return;
+  const me = (await currentUser())?.id; if (!me) return;
+  await c.from("messages").update({ read_at: new Date().toISOString() })
+    .eq("sender_id", otherId).eq("recipient_id", me).is("read_at", null);
+}
+
+export async function subscribeMessages(fn) {
+  const c = await db(); if (!c) return () => {};
+  const user = await currentUser(); if (!user) return () => {};
+  const ch = c.channel("dm:" + user.id)
+    .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `recipient_id=eq.${user.id}` },
+        p => fn(p.new))
+    .subscribe();
+  return () => c.removeChannel(ch);
+}
+
+/* ---------------- community feed ---------------- */
+
+export async function recentPosts(limit = 30) {
+  const c = await db(); if (!c) return [];
+  const { data } = await c
+    .from("posts")
+    .select("id,pillar,body,created_at,author_id,profiles(full_name,country,role)")
+    .eq("is_removed", false)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return data ?? [];
+}

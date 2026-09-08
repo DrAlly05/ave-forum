@@ -2,27 +2,29 @@
 
 Anchored to AfCEM 2026, Arusha, 11–13 November 2026.
 
-## v0.3 — shipped
-Twelve navigation sections, all functional. Explore with live search and filters.
-Detail page for every content record. Founder's Vision panel and full founder
-message. Member directory reading from the database. Accounts, pillar discussion
-rooms, direct messages and notifications live on Supabase with row-level security.
+## v0.4 — shipped
+Official brand content: vision, mission, purpose, values, promise, ambition and the
+six core pillars (Knowledge, Research, Mentorship, Community, Innovation, Her Voice
+in EM). Media uploads to Supabase Storage with contributor permissions. Community
+rebuilt as a social layer: member feed with posting, comments, likes, discussion
+rooms, and a direct-message inbox with real-time delivery.
 
-## v0.4 — content
-- [ ] Record and publish podcast episode 1; submit feed.xml to Spotify and Apple
+## Before the site is shared widely
+- [ ] Run `supabase/migration-v04.sql` in the SQL editor
+- [ ] Grant yourself contributor rights so uploads work
+- [ ] Publish a privacy notice and terms of use
+- [ ] Name a data controller and decide where data is hosted
+- [ ] Written agreement on ownership, attribution and post-conference scope
+
+## v0.5 — content
+- [ ] Upload podcast episode 1; submit feed.xml to Spotify and Apple
 - [ ] Replace each DEMO topic heading with real contributed content
 - [ ] Confirm five Her Voice in EM features with the subjects' consent
 - [ ] Recruit country representatives from the registration list
 
-## v0.5 — before the conference
-- [ ] Direct message inbox interface (schema and API already exist)
+## v0.6 — before the conference
 - [ ] Threaded replies in discussion rooms
-- [ ] Contributor submission form writing to the database
-- [ ] Profile photographs via Supabase storage
-- [ ] Role-based access: contributor, mentor, moderator, editor, admin
+- [ ] Profile photographs via Supabase Storage
+- [ ] Full role model: contributor, mentor, moderator, editor, admin
+- [ ] Mentorship matching workflow
 - [ ] Rehearse the demo offline in case the venue network fails
-
-## Governance, before public launch
-- [ ] Published privacy notice and terms of use
-- [ ] Named data controller and hosting-location decision
-- [ ] Written agreement on ownership, attribution and post-conference scope

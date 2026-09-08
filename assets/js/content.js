@@ -33,11 +33,10 @@ export const FOUNDER = {
 export const NAV = [
   ["about",      "About"],
   ["explore",    "Explore"],
-  ["clinical",   "Clinical Excellence"],
+  ["knowledge",  "Knowledge"],
   ["research",   "Research"],
-  ["leadership", "Leadership"],
+  ["mentorship", "Mentorship"],
   ["community",  "Community"],
-  ["stories",    "Frontline Stories"],
   ["innovation", "Innovation"],
   ["hervoice",   "Her Voice in EM"],
   ["media",      "AVE Media"],
@@ -45,18 +44,19 @@ export const NAV = [
 ];
 
 export const PILLARS = [
-  { id:"clinical", n:"01", name:"Clinical Excellence",
-    lede:"Evidence-based emergency medicine, taught by people who practise it in African departments.",
-    blurb:"Cases, the Airway Academy, ECG and imaging, trauma and critical care.",
+  { id:"knowledge", n:"01", name:"Knowledge", motto:"Learn. Share. Advance.",
+    lede:"Making relevant, practical, and contextually appropriate emergency care knowledge accessible across Africa.",
+    blurb:"Cases, airway teaching, ECG and imaging, trauma, critical care and frontline experience.",
     items:[
       ["Evidence-based emergency medicine education","Referenced teaching on the presentations that fill African emergency departments, written for the equipment and staffing actually available."],
       ["Clinical case discussions","De-identified cases posted by members, discussed openly, with a summary of what the evidence supports."],
       ["Airway Academy","Airway assessment, preparation, drug-assisted intubation, rescue techniques, and the difficult airway without a video laryngoscope."],
       ["ECG and diagnostic imaging","Weekly teaching files with structured interpretation, built into a searchable archive."],
-      ["Trauma and critical care updates","Practice-changing evidence summarised for the shift you are about to start."]
+      ["Trauma and critical care updates","Practice-changing evidence summarised for the shift you are about to start."],
+      ["Frontline experience","First-person accounts of practice under real constraints — district hospitals, rural care, humanitarian settings, and lessons learned."]
     ]},
-  { id:"research", n:"02", name:"Research and Evidence Translation",
-    lede:"African emergency medicine research exists. It is scattered, and rarely read by the clinicians it describes.",
+  { id:"research", n:"02", name:"Research", motto:"Evidence that informs action.",
+    lede:"Amplifying African emergency care research and connecting research findings with clinical practice, policy, and innovation.",
     blurb:"African Research Spotlight, journal club, mentorship, publication support.",
     items:[
       ["African Research Spotlight","A curated, linked library of peer-reviewed African emergency care research."],
@@ -65,39 +65,29 @@ export const PILLARS = [
       ["Grant and publication support","Funding calls, ethics submissions, reporting guidelines, and responding to reviewers."],
       ["Translation into practice","Turning findings into protocols and checklists a department can adopt on Monday."]
     ]},
-  { id:"leadership", n:"03", name:"Leadership and Health Systems",
-    lede:"Emergency care development takes governance, quality systems, and people willing to run them.",
-    blurb:"Department leadership, quality improvement, policy, disaster, EMS.",
+  { id:"mentorship", n:"03", name:"Mentorship", motto:"Experience shared. Potential unlocked.",
+    lede:"Connecting emerging professionals with mentors, leaders, and opportunities for professional growth.",
+    blurb:"Structured pairing, career guidance, leadership development and opportunity.",
     items:[
-      ["Emergency department leadership","Rostering, triage design, flow, staff retention, and the management work that decides whether a department functions."],
-      ["Quality improvement","Indicator selection, audit cycles and improvement projects, shared as replicable methods."],
-      ["Health policy dialogue","Where emergency care sits in national health strategy, financing and universal health coverage."],
-      ["Disaster preparedness","Mass casualty planning, surge capacity, and incident command that holds under load."],
-      ["EMS development","Building prehospital and referral systems, and the sequencing that makes them survive."]
+      ["Mentor matching","Structured pairing between established professionals and those early in their careers, with agreed goals and review points."],
+      ["Career guidance","Specialisation, fellowship, research pathways, and the decisions nobody publishes advice about."],
+      ["Leadership development","Department leadership, quality improvement, health policy and emergency systems development."],
+      ["Resident and student support","A place for trainees to present cases and find supervision beyond their own institution."],
+      ["Opportunity board","Courses, fellowships, funding calls and posts, shared across the continent."]
     ]},
-  { id:"community", n:"04", name:"Community and Collaboration",
-    lede:"A continent-wide professional community for everyone who works in emergency care, at every level.",
-    blurb:"Networking, mentorship, trainees, country representatives, discussion.",
+  { id:"community", n:"04", name:"Community", motto:"One profession. Many voices. One Africa.",
+    lede:"Building a connected community where emergency care professionals can exchange ideas, experiences, opportunities, and solutions.",
+    blurb:"Member feed, discussion rooms, direct messages and country representatives.",
     items:[
       ["Continental networking","Direct contact between clinicians, nurses, paramedics, researchers and educators across more than fifty countries."],
-      ["Mentorship programmes","Structured pairing with agreed goals and review points."],
-      ["Resident and student engagement","A place for trainees to present cases and find supervision beyond their own institution."],
+      ["Discussion rooms","Open discussion by pillar, moderated, searchable, and archived."],
+      ["Direct messages","Private conversation between members, with the same protections as the public rooms."],
       ["Country representatives","A named representative in each participating country, drawn from the membership."],
-      ["Discussion forums","Open discussion by pillar, moderated, searchable, and archived."]
+      ["Interprofessional practice","Nurses, paramedics, medical officers, technicians and physicians in the same conversation."]
     ]},
-  { id:"stories", n:"05", name:"Frontline Stories",
-    lede:"What emergency care actually looks like, told by the people delivering it.",
-    blurb:"District hospitals, rural practice, humanitarian settings, lessons learned.",
-    items:[
-      ["Emergency department experience","First-person accounts of practice under real constraints, published with the author's name and consent."],
-      ["Rural emergency care","The clinical and logistical reality outside referral centres, where most of the continent is treated."],
-      ["Humanitarian medicine","Emergency care in conflict, displacement and outbreak settings."],
-      ["Patient-centred narratives","De-identified accounts that keep the person, not the pathology, at the centre."],
-      ["Lessons learned","Near misses and system failures, shared so the next department does not repeat them."]
-    ]},
-  { id:"innovation", n:"06", name:"Innovation and Digital Health",
-    lede:"Technology assessed honestly against African infrastructure, not against marketing claims.",
-    blurb:"AI, telemedicine, medical technology, simulation, African innovation.",
+  { id:"innovation", n:"05", name:"Innovation", motto:"Ideas into impact.",
+    lede:"Supporting innovative approaches to education, technology, communication, research, and emergency care delivery.",
+    blurb:"AI, telemedicine, medical technology, simulation and African innovation.",
     items:[
       ["Artificial intelligence","Triage, decision support and imaging — what is validated, and what needs local data before it can be trusted."],
       ["Telemedicine","Models that survive intermittent connectivity, and the regulation that decides whether they last."],
@@ -105,8 +95,8 @@ export const PILLARS = [
       ["Simulation","Low-cost and locally manufactured simulation that works without a dedicated centre."],
       ["African innovations","Innovations built on the continent, profiled by the people who built them."]
     ]},
-  { id:"hervoice", n:"07", name:"Her Voice in EM",
-    lede:"Women run departments, teach residents, lead research and drive prehospital systems across this continent. They are not equally visible.",
+  { id:"hervoice", n:"06", name:"Her Voice in EM", motto:"Her voice. Her expertise. Her leadership.",
+    lede:"A dedicated space to amplify women in emergency medicine and emergency care, celebrate their achievements, support mentorship, and promote leadership.",
     blurb:"Women leading, teaching, researching and innovating in emergency care.",
     items:[
       ["Interviews","Long-form conversations with women leading emergency departments, training programmes and prehospital services."],
@@ -118,17 +108,24 @@ export const PILLARS = [
 ];
 
 export const VALUES = [
-  ["African-led","Africans set the agenda. Contributors, editors and country representatives come from the continent's own emergency care community."],
-  ["Contextual","Guidance is written for the resources available. If a protocol needs equipment most departments do not have, we say so."],
-  ["Open","Free to read, free to join, free to reuse in teaching. No paywall between a clinician and the knowledge they need on shift."],
-  ["Rigorous","Clinical content is referenced. Research links to source. Nothing is claimed that cannot be checked."],
-  ["Interprofessional","Nurses, paramedics, medical officers, technicians and physicians share the same resuscitation room and the same platform."],
-  ["Safe","No patient-identifiable information, ever. Cases are de-identified before they are posted."]
+  ["Excellence","Promoting high-quality, evidence-informed emergency care and continuous professional development."],
+  ["Collaboration","Building bridges among emergency care professionals, institutions, societies, researchers, educators, and partners across Africa and beyond."],
+  ["Inclusion","Creating space for every emergency care professional and ensuring that diverse voices are heard and valued."],
+  ["Innovation","Embracing technology, creativity, and new ideas to transform how emergency care knowledge is shared and delivered."],
+  ["Integrity","Championing professionalism, ethical practice, accountability, and responsible knowledge sharing."],
+  ["Empowerment","Equipping the next generation of emergency care professionals with knowledge, confidence, mentorship, and opportunities to lead."],
+  ["Impact","Moving beyond conversation to initiatives that contribute to stronger emergency care systems and better patient outcomes."]
 ];
 
 export const ABOUT = {
-  vision: "Every emergency care professional in Africa, wherever they work, has access to the knowledge, the network and the recognition their work deserves.",
-  mission: "To connect emergency care professionals across Africa through African-led education, research translation, innovation and collaboration — free at the point of use, built for the bandwidth and the conditions people actually work in.",
+  vision: "To become Africa's leading platform for advancing emergency care through knowledge, collaboration, innovation, mentorship, and the collective voice of emergency care professionals.",
+  mission: "To connect, empower, and amplify emergency care professionals across Africa by creating an accessible platform for knowledge exchange, research dissemination, mentorship, education, professional networking, and meaningful dialogue that strengthens emergency care systems and improves patient outcomes.",
+  purpose: "To give emergency care in Africa a stronger, united, and influential voice.",
+  purposeBody: "AVE Forum exists to bridge the gap between knowledge and practice, professionals and opportunities, research and impact, and emerging voices and established leaders.",
+  promise: "We will listen to the voices shaping emergency care, amplify ideas that matter, connect people to opportunity, and turn knowledge into action.",
+  ambition: "To build more than a platform — to build a movement.",
+  ambitionBody: "A movement where an emergency physician in Dar es Salaam can learn from a colleague in Nairobi, a young clinician in rural Africa can access mentorship, an African researcher can reach a global audience, and an innovative idea can move from conversation to implementation. AVE Forum is where Africa's emergency care community connects, learns, speaks, and leads.",
+  rationale: "AVE Forum is a pan-African digital knowledge-sharing and collaboration platform integrating emergency-care education with modern multimedia and digital communication technologies. The concept is consistent with evidence supporting e-learning, digital communities, podcasts, online mentorship, and digital health as mechanisms for expanding access to education, professional networking, and knowledge exchange.",
   cycle: ["Learn","Discuss","Connect","Collaborate","Innovate","Lead","Impact"],
   story: [
     "Emergency departments are opening across Africa, training programmes are expanding, and prehospital systems are being built. What has not kept pace is a shared place where that work is taught, published, argued over and passed on. Most of what a registrar in Dar es Salaam learns the hard way never reaches the registrar in Kumasi who is about to learn it the same way.",

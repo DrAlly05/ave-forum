@@ -19,9 +19,9 @@ for (const m of html.matchAll(/(?:src|href|content)="(assets\/[^"]+)"/g)) {
 
 /* 2. routes */
 const pillarIds = [...content.matchAll(/\{ id:"([a-z]+)", n:"\d\d"/g)].map(m => m[1]);
-if (pillarIds.length !== 7) bad(`expected 7 pillars in content.js, found ${pillarIds.length}`);
+if (pillarIds.length !== 6) bad(`expected 6 pillars in content.js, found ${pillarIds.length}`);
 const known = new Set([
-  "", "home", "about", "explore", "media", "events", "community",
+  "", "home", "about", "explore", "media", "events",
   "profile", "discussion", "notifications", "register",
   ...pillarIds
 ]);
