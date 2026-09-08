@@ -332,3 +332,107 @@ export async function recentPosts(limit = 30) {
     .limit(limit);
   return data ?? [];
 }
+
+/* ============================================================
+   v0.5 — groups, memberships, filtered directory, member pages
+   ============================================================ */
+
+export const SPECIALTIES = [
+  "Emergency Medicine","Trauma and Resuscitation","Paediatric Emergency Medicine",
+  "Emergency Care Systems Research","Disaster and Mass Casualty Medicine",
+  "Toxicology and Critical Care","Emergency Nursing and Triage","Pre-hospital Care",
+  "Emergency Care Policy","Ultrasound and POCUS","Medical Education","General Medicine"
+];
+
+/* ---------------- groups ---------------- */
+
+export async function listGroups() {
+  const c = await db(); if (!c) return [];
+  const { data } = await c.from("group_counts").select("*").order("name");
+  return data ?? [];
+}
+
+export async function myGroupIds() {
+  const c = await db(); if (!c) return [];
+  const user = await currentUser(); if (!user) return [];
+  const { data } = await c.from("group_members").select("group_id").eq("user_id", user.id);
+  return (data ?? []).map(r => r.group_id);
+}
+
+export async function joinGroup(groupId) {
+  const c = await db(); if (!c) throw new Error("Database not connected");
+  const user = await currentUser(); if (!user) throw new Error("Sign in first");
+  const { error } = await c.from("group_members").insert({ group_id: groupId, user_id: user.id });
+  if (error && error.code !== "23505") throw error;   // 23505 = already a member
+}
+
+export async function leaveGroup(groupId) {
+  const c = await db(); if (!c) throw new Error("Database not connected");
+  const user = await currentUser(); if (!user) throw new Error("Sign in first");
+  const { error } = await c.from("group_members").delete()
+    .eq("group_id", groupId).eq("user_id", user.id);
+  if (error) throw error;
+}
+
+export async function groupPosts(groupId, limit = 50) {
+  const c = await db(); if (!c) return [];
+  const { data } = await c.from("posts")
+    .select("id,title,body,created_at,group_id,author_id,profiles(full_name,country,role,is_verified,is_founder)")
+    .eq("group_id", groupId).eq("is_removed", false)
+    .order("created_at", { ascending: false }).limit(limit);
+  return data ?? [];
+}
+
+export async function createGroupPost(groupId, title, body) {
+  const c = await db(); if (!c) throw new Error("Database not connected");
+  const user = await currentUser(); if (!user) throw new Error("Sign in first");
+  const { error } = await c.from("posts")
+    .insert({ group_id: groupId, title, body, author_id: user.id });
+  if (error) throw error;
+}
+
+/** Newest discussion across all groups, for the Community landing tab. */
+export async function recentGroupPosts(limit = 8) {
+  const c = await db(); if (!c) return [];
+  const { data } = await c.from("posts")
+    .select("id,title,body,created_at,group_id,profiles(full_name),groups(name)")
+    .not("group_id", "is", null).eq("is_removed", false)
+    .order("created_at", { ascending: false }).limit(limit);
+  return data ?? [];
+}
+
+/* ---------------- filtered directory ---------------- */
+
+export async function searchDirectory({ country, role, specialty, q } = {}) {
+  const c = await db(); if (!c) return [];
+  let query = c.from("profiles")
+    .select("id,full_name,country,role,specialty,institution,bio,is_country_rep,is_verified,is_mentor,is_editor,is_moderator,is_contributor,is_founder")
+    .order("is_founder", { ascending: false })
+    .order("full_name");
+  if (country)   query = query.eq("country", country);
+  if (role)      query = query.eq("role", role);
+  if (specialty) query = query.eq("specialty", specialty);
+  if (q)         query = query.ilike("full_name", `%${q}%`);
+  const { data } = await query.limit(300);
+  return data ?? [];
+}
+
+/** Distinct values actually present in the directory, for the filter dropdowns. */
+export async function directoryFacets() {
+  const c = await db(); if (!c) return { countries: [], roles: [], specialties: [] };
+  const { data } = await c.from("profiles").select("country,role,specialty").limit(1000);
+  const uniq = k => [...new Set((data ?? []).map(r => r[k]).filter(Boolean))].sort();
+  return { countries: uniq("country"), roles: uniq("role"), specialties: uniq("specialty") };
+}
+
+export async function memberCount() {
+  const c = await db(); if (!c) return 0;
+  const { count } = await c.from("profiles").select("id", { count: "exact", head: true });
+  return count ?? 0;
+}
+
+export async function countryCount() {
+  const c = await db(); if (!c) return 0;
+  const { data } = await c.from("profiles").select("country").limit(1000);
+  return new Set((data ?? []).map(r => r.country).filter(Boolean)).size;
+}

@@ -403,3 +403,41 @@ a.tile:hover{border-color:var(--navy)}
 .bar-progress[data-on]{display:block}
 .bar-progress i{display:block;height:100%;background:var(--red);width:35%;animation:slide 1.1s ease-in-out infinite}
 @keyframes slide{0%{margin-left:-35%}100%{margin-left:100%}}
+
+/* ============================================================
+   v0.5 — directory filters, groups, member profile pages
+   ============================================================ */
+.filters{display:grid;gap:.7rem;margin-bottom:1.6rem}
+@media(min-width:760px){.filters{grid-template-columns:repeat(4,1fr)}}
+.filters label{margin-bottom:.25rem}
+.filters select,.filters input{padding:.55rem .65rem;font-size:.93rem}
+
+.dircard{background:#fff;border:1px solid var(--line);padding:1.1rem;display:flex;gap:.85rem;
+  align-items:flex-start;text-decoration:none;transition:border-color .15s}
+a.dircard:hover{border-color:var(--navy)}
+.dircard .who b{font-family:var(--ui);font-size:.98rem;font-weight:700;display:block;line-height:1.3}
+.dircard .who span{display:block;font-size:.85rem;color:var(--ink-2);margin-top:.12rem}
+.dircard .tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
+.dirgrid{display:grid;gap:1rem}
+@media(min-width:640px){.dirgrid{grid-template-columns:1fr 1fr}}
+@media(min-width:1000px){.dirgrid{grid-template-columns:repeat(3,1fr)}}
+
+.badge.verified{background:rgba(27,122,75,.12);color:var(--ok)}
+.badge.mentor{background:rgba(22,64,111,.1);color:var(--navy-3)}
+.badge.editor{background:rgba(200,20,24,.09);color:var(--red)}
+.badge.mod{background:rgba(3,30,60,.09);color:var(--navy)}
+.badge.rep{background:rgba(210,162,78,.22);color:var(--gold-deep)}
+
+.groupcard{background:#fff;border:1px solid var(--line);padding:1.2rem;display:flex;flex-direction:column;gap:.5rem}
+.groupcard h3{font-family:var(--ui);font-size:1.05rem;font-weight:700}
+.groupcard p{margin:0;font-size:.9rem;color:var(--ink-2)}
+.groupcard .count{font-family:var(--ui);font-size:.78rem;font-weight:700;letter-spacing:.06em;color:var(--gold-deep)}
+.groupcard .row{margin-top:auto;padding-top:.9rem;display:flex;gap:.5rem;align-items:center}
+
+.disc{background:#fff;border:1px solid var(--line);padding:.95rem 1.1rem;text-decoration:none;display:block}
+.disc + .disc{border-top:0}
+a.disc:hover{background:var(--paper)}
+.disc b{font-family:var(--ui);font-size:.97rem;font-weight:700;display:block}
+.disc span{font-size:.83rem;color:var(--ink-2)}
+
+.memberhead{display:flex;gap:1.2rem;align-items:flex-start;flex-wrap:wrap}

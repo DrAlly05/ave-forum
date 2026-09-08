@@ -22,7 +22,7 @@ const pillarIds = [...content.matchAll(/\{ id:"([a-z]+)", n:"\d\d"/g)].map(m => 
 if (pillarIds.length !== 6) bad(`expected 6 pillars in content.js, found ${pillarIds.length}`);
 const known = new Set([
   "", "home", "about", "explore", "media", "events",
-  "profile", "discussion", "notifications", "register",
+  "profile", "discussion", "notifications", "register", "member", "group",
   ...pillarIds
 ]);
 const routes = [...html.matchAll(/href="#\/([^"?]*)"/g), ...app.matchAll(/href="#\/([^"?`]*)["?]/g)]

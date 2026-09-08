@@ -492,10 +492,11 @@ const communityView = () => `
   ${head("Pillar 04 · One profession. Many voices. One Africa.","Community","Building a connected community where emergency care professionals can exchange ideas, experiences, opportunities, and solutions.")}
   <section><div class="wrap">
     <div class="tabs" id="commTabs">
-      <button data-tab="feed" aria-selected="true">Feed</button>
+      <button data-tab="directory" aria-selected="true">Directory</button>
+      <button data-tab="groups" aria-selected="false">Groups</button>
+      <button data-tab="feed" aria-selected="false">Feed</button>
       <button data-tab="rooms" aria-selected="false">Discussion rooms</button>
       <button data-tab="messages" aria-selected="false">Messages</button>
-      <button data-tab="members" aria-selected="false">Members</button>
     </div>
     <div id="commBody"><p class="empty">Loading…</p></div>
 
@@ -507,7 +508,7 @@ const communityView = () => `
   </div></section>
 </div>`;
 
-let COMM_TAB = "feed";
+let COMM_TAB = "directory";
 
 async function renderCommunity(tab) {
   COMM_TAB = tab || COMM_TAB;
@@ -523,10 +524,11 @@ async function renderCommunity(tab) {
     return;
   }
 
-  if (COMM_TAB === "feed")     return renderFeed(el);
-  if (COMM_TAB === "rooms")    return renderRooms(el);
-  if (COMM_TAB === "messages") return renderInbox(el);
-  if (COMM_TAB === "members")  return renderMembers(el);
+  if (COMM_TAB === "directory") return renderDirectory(el);
+  if (COMM_TAB === "groups")    return renderGroups(el);
+  if (COMM_TAB === "feed")      return renderFeed(el);
+  if (COMM_TAB === "rooms")     return renderRooms(el);
+  if (COMM_TAB === "messages")  return renderInbox(el);
 }
 
 /* ---------------- feed ---------------- */
@@ -723,33 +725,245 @@ async function drawThread() {
   box.scrollTop = box.scrollHeight;
 }
 
-/* ---------------- members ---------------- */
-async function renderMembers(el) {
-  const rows = await api.directory();
-  el.innerHTML = rows.length
-    ? `<div class="people">${rows.map(p => `
-        <div class="person">
-          <div class="avatar">${esc(initials(p.full_name))}</div>
-          <div style="flex:1">
-            <b>${esc(p.full_name || "Member")}${p.is_country_rep ? ` <span class="badge nav">REP</span>` : ""}</b>
-            <span>${esc([p.role, p.institution].filter(Boolean).join(" · ") || "Member")}</span>
-            <span>${esc(p.country || "")}</span>
-            ${p.id === SESSION.id ? "" : `<button class="act" data-dm="${esc(p.id)}" style="padding-left:0;margin-top:.3rem">Message</button>`}
-          </div>
-        </div>`).join("")}</div>`
-    : `<p class="empty">No members yet. You could be the first.</p>`;
+/* ---------------- professional directory ---------------- */
+const roleBadges = p => [
+  p.is_founder     && `<span class="badge founder">FOUNDER</span>`,
+  p.is_verified    && `<span class="badge verified">VERIFIED</span>`,
+  p.is_mentor      && `<span class="badge mentor">MENTOR</span>`,
+  p.is_editor      && `<span class="badge editor">EDITOR</span>`,
+  p.is_moderator   && `<span class="badge mod">MODERATOR</span>`,
+  p.is_contributor && `<span class="badge cat">CONTRIBUTOR</span>`,
+  p.is_country_rep && `<span class="badge rep">COUNTRY REP</span>`
+].filter(Boolean).join("");
 
-  $$("[data-dm]").forEach(b => b.addEventListener("click", async () => {
-    await api.sendMessage(b.dataset.dm, "Hello — reaching out through AVE Forum.")
-      .catch(err => alert("Could not start the conversation: " + err.message));
-    renderCommunity("messages");
+async function renderDirectory(el) {
+  const facets    = await api.directoryFacets();
+  const members   = await api.memberCount();
+  const countries = await api.countryCount();
+
+  el.innerHTML = `
+    <p class="form-note" style="margin:0 0 1.2rem">${members} member${members === 1 ? "" : "s"} across ${countries} countr${countries === 1 ? "y" : "ies"}. Counts are live from the database — nothing here is estimated.</p>
+    <div class="filters">
+      <div><label for="d-q">Search by name</label><input id="d-q" type="search" placeholder="Name…"></div>
+      <div><label for="d-country">Country</label><select id="d-country"><option value="">All</option>
+        ${facets.countries.map(c => `<option>${esc(c)}</option>`).join("")}</select></div>
+      <div><label for="d-role">Profession</label><select id="d-role"><option value="">All</option>
+        ${facets.roles.map(r => `<option>${esc(r)}</option>`).join("")}</select></div>
+      <div><label for="d-spec">Specialty</label><select id="d-spec"><option value="">All</option>
+        ${facets.specialties.map(x => `<option>${esc(x)}</option>`).join("")}</select></div>
+    </div>
+    <div class="dirgrid" id="dirResults"><p class="empty">Loading…</p></div>`;
+
+  const draw = async () => {
+    const rows = await api.searchDirectory({
+      q: $("#d-q").value.trim(), country: $("#d-country").value,
+      role: $("#d-role").value, specialty: $("#d-spec").value
+    });
+    $("#dirResults").innerHTML = rows.length ? rows.map(p => `
+      <a class="dircard" href="#/member/${esc(p.id)}">
+        <div class="avatar">${esc(initials(p.full_name))}</div>
+        <div class="who" style="flex:1">
+          <b>${esc(p.full_name || "Member")}</b>
+          <span>${esc([p.role, p.institution].filter(Boolean).join(" · ") || "Member")}</span>
+          <span>${esc([p.specialty, p.country].filter(Boolean).join(" · "))}</span>
+          <div class="tags">${roleBadges(p)}</div>
+        </div>
+      </a>`).join("")
+      : `<p class="empty">No members match those filters yet.</p>`;
+  };
+  ["#d-q", "#d-country", "#d-role", "#d-spec"].forEach(sel => $(sel).addEventListener("input", draw));
+  await draw();
+}
+
+/* ---------------- groups ---------------- */
+async function renderGroups(el) {
+  const groups = await api.listGroups();
+  const mine   = await api.myGroupIds();
+  const recent = await api.recentGroupPosts(6);
+
+  el.innerHTML = `
+    <div class="cards c3">
+      ${groups.map(g => `
+        <div class="groupcard">
+          <span class="count">${g.members} member${Number(g.members) === 1 ? "" : "s"}</span>
+          <h3>${esc(g.name)}</h3>
+          <p>${esc(g.description)}</p>
+          <div class="row">
+            <button class="btn sm ${mine.includes(g.id) ? "dark" : ""}" data-group="${esc(g.id)}"
+                    data-joined="${mine.includes(g.id)}">${mine.includes(g.id) ? "Leave group" : "Join group"}</button>
+            <a class="act" href="#/group/${esc(g.id)}">Open</a>
+          </div>
+        </div>`).join("")}
+    </div>
+
+    <h2 class="sec-title" style="font-size:1.2rem;margin-top:2.6rem">Recent group discussions</h2>
+    <div style="margin-top:1.1rem">
+      ${recent.length ? recent.map(d => `
+        <a class="disc" href="#/group/${esc(d.group_id)}">
+          <b>${esc(d.title || (d.body || "").slice(0, 70))}</b>
+          <span>Started by ${esc(d.profiles?.full_name || "a member")} in ${esc(d.groups?.name || d.group_id)} · ${when(d.created_at)}</span>
+        </a>`).join("")
+        : `<p class="empty">No group discussions yet. Join a group and start one.</p>`}
+    </div>`;
+
+  $$("[data-group]").forEach(b => b.addEventListener("click", async () => {
+    b.disabled = true;
+    try {
+      b.dataset.joined === "true" ? await api.leaveGroup(b.dataset.group)
+                                  : await api.joinGroup(b.dataset.group);
+      await renderGroups(el);
+    } catch (err) { alert(err.message); b.disabled = false; }
   }));
 }
 
 /* ============================================================
    ITEM DETAIL
    ============================================================ */
-const itemView = () => `<div class="view" id="v-item"><div id="itemBody"></div></div>`;
+const itemView   = () => `<div class="view" id="v-item"><div id="itemBody"></div></div>`;
+const memberView = () => `<div class="view" id="v-member"><div id="memberBody"></div></div>`;
+const groupView  = () => `<div class="view" id="v-group"><div id="groupBody"></div></div>`;
+
+/* ---------------- member profile page ---------------- */
+async function renderMember(id) {
+  const el = $("#memberBody"); if (!el) return;
+  if (!api.isLive() || !SESSION) {
+    el.innerHTML = head("Community","Member profile","") +
+      `<section><div class="wrap"><div class="gate"><h3>Members only</h3>
+        <p>Member profiles are visible to signed-in members, so nobody's details are exposed publicly.</p>
+        <p style="margin-top:1rem"><a class="btn dark" href="#/profile">Sign in</a></p></div></div></section>`;
+    return;
+  }
+  const p = await api.getProfile(id);
+  if (!p) { el.innerHTML = head("Community","Member not found",""); return; }
+
+  el.innerHTML = `
+    ${head("Community", p.full_name || "Member", [p.role, p.institution, p.country].filter(Boolean).join(" · "),
+           `<a href="#/">Home</a> / <a href="#/community">Community</a> / ${esc(p.full_name || "Member")}`)}
+    <section><div class="wrap">
+      <div class="split">
+        <div>
+          <div class="memberhead">
+            <div class="avatar lg">${esc(initials(p.full_name))}</div>
+            <div>
+              <h2 class="sec-title" style="font-size:1.35rem">${esc(p.full_name || "Member")}</h2>
+              <div class="tags" style="margin-top:.5rem">${roleBadges(p)}</div>
+            </div>
+          </div>
+          ${p.bio ? `<p class="sec-intro" style="margin-top:1.6rem">${esc(p.bio)}</p>`
+                  : `<p class="sec-intro" style="margin-top:1.6rem">This member has not written a bio yet.</p>`}
+          ${p.id === SESSION.id ? `<p style="margin-top:1.6rem"><a class="btn dark" href="#/profile">Edit your profile</a></p>`
+            : `<form class="form" id="dmStart" style="margin-top:1.8rem;max-width:520px">
+                 <div><label for="dm-body">Send a message</label>
+                   <textarea id="dm-body" name="body" rows="3" required placeholder="Introduce yourself…"></textarea></div>
+                 <div><button class="btn" type="submit">Send message</button></div>
+                 <div class="msg" id="dmMsg"></div>
+               </form>`}
+        </div>
+        <div class="aside">
+          <h3>DETAILS</h3>
+          <ul>
+            <li><strong>Role</strong><br>${esc(p.role || "Not stated")}</li>
+            <li><strong>Institution</strong><br>${esc(p.institution || "Not stated")}</li>
+            <li><strong>Specialty</strong><br>${esc(p.specialty || "Not stated")}</li>
+            <li><strong>Country</strong><br>${esc(p.country || "Not stated")}</li>
+          </ul>
+          <h3 style="margin-top:1.6rem">COMMUNITY</h3>
+          <ul>
+            <li><a href="#/community">Back to the directory</a></li>
+            <li><a href="#/community">Groups</a></li>
+          </ul>
+        </div>
+      </div>
+    </div></section>`;
+
+  $("#dmStart")?.addEventListener("submit", async e => {
+    e.preventDefault();
+    const msg = $("#dmMsg"), body = e.target.body.value.trim();
+    if (!body) return;
+    try {
+      await api.sendMessage(id, body);
+      e.target.body.value = "";
+      msg.className = "msg good"; msg.setAttribute("data-on","");
+      msg.textContent = "Sent. Continue the conversation in Community → Messages.";
+    } catch (err) {
+      msg.className = "msg err"; msg.setAttribute("data-on",""); msg.textContent = "Could not send: " + err.message;
+    }
+  });
+}
+
+/* ---------------- group page ---------------- */
+async function renderGroup(id) {
+  const el = $("#groupBody"); if (!el) return;
+  if (!api.isLive() || !SESSION) {
+    el.innerHTML = head("Community","Group","") +
+      `<section><div class="wrap"><div class="gate"><h3>Members only</h3>
+        <p>Groups are open to signed-in members.</p>
+        <p style="margin-top:1rem"><a class="btn dark" href="#/profile">Sign in</a></p></div></div></section>`;
+    return;
+  }
+  const groups = await api.listGroups();
+  const g = groups.find(x => x.id === id);
+  if (!g) { el.innerHTML = head("Community","Group not found",""); return; }
+  const mine = (await api.myGroupIds()).includes(id);
+
+  el.innerHTML = `
+    ${head("Community group", g.name, g.description,
+           `<a href="#/">Home</a> / <a href="#/community">Community</a> / ${esc(g.name)}`)}
+    <section><div class="wrap">
+      <div style="display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;margin-bottom:1.6rem">
+        <span class="badge cat">${g.members} member${Number(g.members) === 1 ? "" : "s"}</span>
+        <button class="btn sm ${mine ? "dark" : ""}" id="gJoin">${mine ? "Leave group" : "Join group"}</button>
+      </div>
+      ${mine ? `
+        <div class="composer">
+          <form id="gForm">
+            <div><label for="g-title">Discussion title</label><input id="g-title" name="title" required></div>
+            <div style="margin-top:.7rem"><label for="g-body" class="sr">Body</label>
+              <textarea id="g-body" name="body" rows="3" required placeholder="What would you like to ask or share?"></textarea></div>
+            <div class="composer-row">
+              <button class="btn" type="submit">Start discussion</button>
+              <span class="form-note" style="margin:0">No patient-identifiable information.</span>
+            </div>
+          </form>
+        </div>` : `<div class="slot"><h3>Join to post</h3><p>Members of this group can start discussions and reply.</p></div>`}
+      <div id="gPosts"><p class="empty">Loading…</p></div>
+    </div></section>`;
+
+  $("#gJoin").addEventListener("click", async () => {
+    try { mine ? await api.leaveGroup(id) : await api.joinGroup(id); await renderGroup(id); }
+    catch (err) { alert(err.message); }
+  });
+  $("#gForm")?.addEventListener("submit", async e => {
+    e.preventDefault();
+    try {
+      await api.createGroupPost(id, e.target.title.value.trim(), e.target.body.value.trim());
+      e.target.reset(); await loadGroupPosts(id);
+    } catch (err) { alert("Could not post: " + err.message); }
+  });
+  await loadGroupPosts(id);
+}
+
+async function loadGroupPosts(id) {
+  const box = $("#gPosts"); if (!box) return;
+  const rows = await api.groupPosts(id);
+  box.innerHTML = rows.length ? rows.map(p => `
+    <div class="post" data-post="${esc(p.id)}">
+      <div class="post-head">
+        <div class="avatar">${esc(initials(p.profiles?.full_name))}</div>
+        <div><b>${esc(p.profiles?.full_name || "Member")}</b>
+          <span>${esc([p.profiles?.role, p.profiles?.country].filter(Boolean).join(" · "))} · ${when(p.created_at)}</span></div>
+      </div>
+      ${p.title ? `<h3 style="font-family:var(--ui);font-size:1.05rem;font-weight:700;margin-top:.7rem">${esc(p.title)}</h3>` : ""}
+      <p class="post-body">${esc(p.body)}</p>
+      <div class="post-actions">
+        <button class="act" data-like="post:${esc(p.id)}">Like</button>
+        <button class="act" data-comments="post:${esc(p.id)}">Comment</button>
+      </div>
+      <div class="comments" id="cm-post-${esc(p.id)}"></div>
+    </div>`).join("")
+    : `<p class="empty">No discussions in this group yet. Start the first one.</p>`;
+  wireCards(box);
+}
 
 function renderItem(id) {
   const el = $("#itemBody"); if (!el) return;
@@ -1052,7 +1266,7 @@ function build() {
     homeView() + aboutView() + exploreView() +
     PILLARS.filter(p => p.id !== "community").map(pillarView).join("") +
     mediaView() + eventsView() + communityView() +
-    profileView() + discussionView() + notificationsView() + registerView() + itemView();
+    profileView() + discussionView() + notificationsView() + registerView() + itemView() + memberView() + groupView();
 
   $("#panelList").innerHTML = [["", "Home", "The platform at a glance"], ...NAV.map(([id, name]) => {
     const p = PILLARS.find(x => x.id === id);
@@ -1072,7 +1286,9 @@ function route() {
   const params = new URLSearchParams(query || "");
 
   let id = parts[0] ? "v-" + parts[0] : "v-home";
-  if (parts[0] === "item") id = "v-item";
+  if (parts[0] === "item")   id = "v-item";
+  if (parts[0] === "member") id = "v-member";
+  if (parts[0] === "group")  id = "v-group";
 
   const target = document.getElementById(id) || $("#v-home");
   $$(".view").forEach(v => v.removeAttribute("data-active"));
@@ -1082,6 +1298,8 @@ function route() {
   window.scrollTo(0,0);
 
   if (id === "v-item")          renderItem(parts[1]);
+  if (id === "v-member")        renderMember(parts[1]);
+  if (id === "v-group")         renderGroup(parts[1]);
   if (id === "v-explore")       wireExplore();
   if (id === "v-media")         renderMedia();
   if (id === "v-community")     renderCommunity();
