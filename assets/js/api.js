@@ -39,11 +39,14 @@ export async function currentUser() {
   return data?.user ?? null;
 }
 
-export async function signInWithEmail(email) {
+export async function signInWithEmail(email, meta = {}) {
   const c = await db(); if (!c) throw new Error("preview");
   const { error } = await c.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: window.location.origin + window.location.pathname }
+    options: {
+      data: meta,                                   // carried into the profile on first sign-in
+      emailRedirectTo: window.location.origin + window.location.pathname
+    }
   });
   if (error) throw error;
 }

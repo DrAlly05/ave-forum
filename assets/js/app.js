@@ -1080,6 +1080,8 @@ function renderProfileBody() {
         <div><label for="p-role">Role</label><select id="p-role" name="role" required>
           <option value="">Select…</option>${ROLES.map(r=>`<option ${p.role===r?"selected":""}>${r}</option>`).join("")}</select></div>
       </div>
+      <div><label for="p-spec">Specialty</label><select id="p-spec" name="specialty">
+        <option value="">Select…</option>${api.SPECIALTIES.map(x=>`<option ${p.specialty===x?"selected":""}>${x}</option>`).join("")}</select></div>
       <div><label for="p-bio">Short bio</label><textarea id="p-bio" name="bio" rows="3" placeholder="What you work on, and what you would like to contribute.">${esc(p.bio||"")}</textarea></div>
       <div><button class="btn" type="submit" ${preview?"disabled":""}>Save profile</button></div>
       <div class="msg" id="profileMsg"></div>
@@ -1224,14 +1226,19 @@ const registerView = () => `
         <div><label for="r-role">Role</label><select id="r-role" name="role" required>
           <option value="">Select…</option>${ROLES.map(r=>`<option>${r}</option>`).join("")}</select></div>
       </div>
+      <div class="two">
+        <div><label for="r-spec">Specialty</label><select id="r-spec" name="specialty">
+          <option value="">Select…</option>${api.SPECIALTIES.map(x=>`<option>${x}</option>`).join("")}</select></div>
+        <div><label for="r-inst">Institution</label><input id="r-inst" name="institution"></div>
+      </div>
       <div><label for="r-interest">What brings you here</label><select id="r-interest" name="interest" required>
         <option value="">Select…</option>${INTERESTS.map(i=>`<option>${i}</option>`).join("")}</select></div>
       <div><label for="r-msg">Anything you want us to know (optional)</label>
         <textarea id="r-msg" name="message" rows="3" placeholder="A case you'd like discussed, a paper worth spotlighting, a colleague we should feature…"></textarea></div>
       <label class="check"><input type="checkbox" name="consent" required>
         <span>I agree to be contacted about AVE Forum, and I understand no patient-identifiable information may be posted on the platform.</span></label>
-      <div><button class="btn gold" type="submit">Register my interest</button></div>
-      <p class="form-note">Your details are used only to contact you about AVE Forum. Not shared, not sold, unsubscribe at any time.</p>
+      <div><button class="btn gold" type="submit">Create my account</button></div>
+      <p class="form-note">We send a sign-in link to your email — no password to remember. Your details are used only for AVE Forum. Not shared, not sold.</p>
       <div class="msg" id="registerMsg"></div>
     </form>
   </div></section>
@@ -1246,15 +1253,22 @@ function wireRegister() {
     const data = Object.fromEntries(new FormData(form)); delete data.consent;
     btn.disabled = true; btn.textContent = "Sending…";
     try {
-      await api.register(data);
+      const { specialty, institution, ...listing } = data;
+      await api.register(listing);
+      if (api.isLive()) {
+        await api.signInWithEmail(data.email, {
+          full_name: data.full_name, country: data.country,
+          role: data.role, specialty, institution
+        });
+      }
       form.querySelectorAll("input,select,textarea").forEach(i => i.type === "checkbox" ? i.checked = false : i.value = "");
       msg.className = "msg good"; msg.setAttribute("data-on","");
-      msg.textContent = "You're on the list. We'll write to you as sections open, and sooner if you offered to contribute.";
+      msg.textContent = "Check your email. The link in it signs you in and creates your profile — no password needed.";
     } catch (err) {
       msg.className = "msg err"; msg.setAttribute("data-on","");
       msg.textContent = "Could not register: " + err.message + ". Email " + ORG.email + " and we will add you.";
     }
-    btn.disabled = false; btn.textContent = "Register my interest";
+    btn.disabled = false; btn.textContent = "Create my account";
   });
 }
 
@@ -1313,6 +1327,21 @@ const panel = () => $("#panel");
 function openPanel(){ panel().setAttribute("open",""); $("#menuBtn").setAttribute("aria-expanded","true"); document.body.style.overflow="hidden"; }
 function closePanel(){ panel().removeAttribute("open"); $("#menuBtn")?.setAttribute("aria-expanded","false"); document.body.style.overflow=""; }
 
+/** A member who registered has already told us who they are.
+    Copy that into their profile the first time they sign in. */
+async function seedProfileFromSignup() {
+  if (!SESSION || !PROFILE) return;
+  if (PROFILE.country && PROFILE.role) return;          // already complete
+  const m = SESSION.user_metadata || {};
+  const fields = {};
+  for (const k of ["full_name","country","role","specialty","institution"]) {
+    if (m[k] && !PROFILE[k]) fields[k] = m[k];
+  }
+  if (!Object.keys(fields).length) return;
+  try { await api.saveProfile(SESSION.id, fields); PROFILE = { ...PROFILE, ...fields }; }
+  catch { /* the member can still fill the form by hand */ }
+}
+
 function updateAccountNav() {
   const el = $("#accountNav"); if (!el) return;
   el.innerHTML = SESSION
@@ -1334,9 +1363,10 @@ async function boot() {
 
   if (api.isLive()) {
     SESSION = await api.currentUser();
-    if (SESSION) PROFILE = await api.getProfile(SESSION.id);
+    if (SESSION) { PROFILE = await api.getProfile(SESSION.id); await seedProfileFromSignup(); }
     await api.onAuthChange(async u => {
       SESSION = u; PROFILE = u ? await api.getProfile(u.id) : null;
+      if (u) await seedProfileFromSignup();
       updateAccountNav(); route();
     });
     await api.subscribeNotifications(refreshBadge);
