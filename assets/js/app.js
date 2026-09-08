@@ -62,6 +62,59 @@ const joinCta = (title = "Add your voice", body = "Join clinicians, nurses, para
       <a class="btn ghost" href="#/explore" style="margin-left:.5rem">Explore</a></p>
   </div></section>`;
 
+
+/* ============================================================
+   Attachments in conversations
+   ============================================================ */
+const attachControl = id => `
+  <div class="attach-row">
+    <label class="attach-btn">
+      Attach file
+      <input type="file" id="${id}" accept="image/*,video/*,audio/*,application/pdf">
+    </label>
+    <span class="attach-name" id="${id}-name"><span></span><button type="button" title="Remove">&times;</button></span>
+    <span class="form-note" style="margin:0">Images, video, audio or PDF. Up to 25 MB.</span>
+  </div>`;
+
+function wireAttach(id) {
+  const input = document.getElementById(id);
+  const chip  = document.getElementById(id + "-name");
+  if (!input || !chip) return;
+  input.addEventListener("change", () => {
+    const f = input.files[0];
+    if (!f) { chip.removeAttribute("data-on"); return; }
+    chip.querySelector("span").textContent = f.name;
+    chip.setAttribute("data-on", "");
+  });
+  chip.querySelector("button").addEventListener("click", () => {
+    input.value = ""; chip.removeAttribute("data-on");
+  });
+}
+
+/** Uploads the chosen file, if any, and returns the columns to store. */
+async function takeAttachment(id) {
+  const input = document.getElementById(id);
+  const f = input?.files?.[0];
+  if (!f) return null;
+  const meta = await api.uploadAttachment(f);
+  input.value = "";
+  document.getElementById(id + "-name")?.removeAttribute("data-on");
+  return meta;
+}
+
+/** Renders whatever was attached, inline. */
+const attachmentHTML = r => {
+  if (!r.attachment_path) return "";
+  const url = api.chatUrl(r.attachment_path);
+  const mime = r.attachment_mime || "";
+  const name = esc(r.attachment_name || "Attachment");
+  if (mime.startsWith("image")) return `<div class="att"><a href="${esc(url)}" target="_blank" rel="noopener"><img src="${esc(url)}" alt="${name}" loading="lazy"></a></div>`;
+  if (mime.startsWith("video")) return `<div class="att"><video controls preload="metadata" src="${esc(url)}"></video></div>`;
+  if (mime.startsWith("audio")) return `<div class="att"><audio controls preload="none" src="${esc(url)}"></audio></div>`;
+  return `<div class="att"><a class="file" href="${esc(url)}" target="_blank" rel="noopener">
+            <div><b>${name}</b><span>${esc(mime || "File")}</span></div></a></div>`;
+};
+
 /* ============================================================
    1. HOME
    ============================================================ */
@@ -538,30 +591,39 @@ async function renderFeed(el) {
       <form id="feedForm">
         <label for="fp-body" class="sr">Post</label>
         <textarea id="fp-body" name="body" rows="3" placeholder="Share a question, a case, an opportunity or an idea…" required></textarea>
+        ${attachControl("feedAttach")}
         <div class="composer-row">
           <select name="pillar" aria-label="Pillar">
             ${PILLARS.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("")}
           </select>
           <button class="btn" type="submit">Post</button>
-          <span class="form-note" style="margin:0">No patient-identifiable information.</span>
+          <span class="form-note" style="margin:0">No patient-identifiable information, including in images.</span>
         </div>
       </form>
     </div>
     <div id="feedList"><p class="empty">Loading…</p></div>`;
 
+  wireAttach("feedAttach");
   $("#feedForm").addEventListener("submit", async e => {
     e.preventDefault();
-    const body = e.target.body.value.trim(); if (!body) return;
-    e.target.body.value = "";
-    try { await api.createPost(e.target.pillar.value, body); await loadFeed(); }
-    catch (err) { alert("Could not post: " + err.message); }
+    const body = e.target.body.value.trim();
+    const btn = e.target.querySelector("button[type=submit]");
+    if (!body && !document.getElementById("feedAttach").files[0]) return;
+    btn.disabled = true; btn.textContent = "Posting…";
+    try {
+      const attach = await takeAttachment("feedAttach");
+      await api.createPostWith(e.target.pillar.value, body, attach);
+      e.target.body.value = "";
+      await loadFeed();
+    } catch (err) { alert("Could not post: " + err.message); }
+    btn.disabled = false; btn.textContent = "Post";
   });
   await loadFeed();
 }
 
 async function loadFeed() {
   const list = $("#feedList"); if (!list) return;
-  const rows = await api.recentPosts(40);
+  const rows = await api.recentPostsFull(40);
   list.innerHTML = rows.length ? rows.map(postCard).join("")
     : `<p class="empty">Nothing here yet. Be the first to post.</p>`;
   wireCards(list);
@@ -578,6 +640,7 @@ const postCard = p => `
       <span class="badge cat" style="margin-left:auto">${esc((PILLARS.find(x => x.id === p.pillar) || {}).name || p.pillar)}</span>
     </div>
     <p class="post-body">${esc(p.body)}</p>
+    ${attachmentHTML(p)}
     <div class="post-actions">
       <button class="act" data-like="post:${esc(p.id)}">Like</button>
       <button class="act" data-comments="post:${esc(p.id)}">Comment</button>
@@ -616,22 +679,34 @@ function wireCards(scope) {
 }
 
 async function loadComments(type, id, box) {
-  const rows = await api.listComments(type, id);
+  const rows = await api.listCommentsFull(type, id);
+  const aid = `att-${type}-${id}`;
   box.innerHTML = `
     ${rows.length ? rows.map(c => `
       <div class="comment">
         <b>${esc(c.profiles?.full_name || "Member")}</b><time>${when(c.created_at)}</time>
-        <p>${esc(c.body)}</p>
+        ${c.body ? `<p>${esc(c.body)}</p>` : ""}
+        ${attachmentHTML(c)}
       </div>`).join("") : `<p class="empty" style="padding:.8rem 0">No comments yet.</p>`}
-    <form class="comment-form">
-      <textarea name="body" rows="1" placeholder="Write a comment…" required></textarea>
-      <button class="btn sm" type="submit">Send</button>
+    <form class="comment-form" style="flex-direction:column;align-items:stretch">
+      <div style="display:flex;gap:.5rem">
+        <textarea name="body" rows="1" placeholder="Write a comment…"></textarea>
+        <button class="btn sm" type="submit">Send</button>
+      </div>
+      ${attachControl(aid)}
     </form>`;
+  wireAttach(aid);
   box.querySelector("form").addEventListener("submit", async e => {
     e.preventDefault();
-    const body = e.target.body.value.trim(); if (!body) return;
-    try { await api.addComment(type, id, body); await loadComments(type, id, box); }
-    catch (err) { alert("Could not comment: " + err.message); }
+    const body = e.target.body.value.trim();
+    if (!body && !document.getElementById(aid).files[0]) return;
+    const btn = e.target.querySelector("button");
+    btn.disabled = true;
+    try {
+      const attach = await takeAttachment(aid);
+      await api.addCommentWith(type, id, body, attach);
+      await loadComments(type, id, box);
+    } catch (err) { alert("Could not comment: " + err.message); btn.disabled = false; }
   });
 }
 
@@ -645,9 +720,12 @@ async function renderRooms(el) {
       </ul>
       <div class="thread">
         <div class="thread-body" id="threadBody"><p class="empty">Loading…</p></div>
-        <form class="thread-form" id="postForm">
-          <textarea name="body" rows="1" placeholder="Write to the room…" required></textarea>
-          <button class="btn" type="submit">Post</button>
+        <form class="thread-form" id="postForm" style="flex-direction:column;align-items:stretch">
+          <div style="display:flex;gap:.6rem;align-items:flex-end">
+            <textarea name="body" rows="1" placeholder="Write to the room…"></textarea>
+            <button class="btn" type="submit">Post</button>
+          </div>
+          ${attachControl("roomAttach")}
         </form>
       </div>
     </div>`;
@@ -658,12 +736,19 @@ async function renderRooms(el) {
     await loadRoom(active);
   }));
   await loadRoom(active);
+  wireAttach("roomAttach");
   $("#postForm").addEventListener("submit", async e => {
     e.preventDefault();
     const ta = e.target.querySelector("textarea"), body = ta.value.trim();
-    if (!body) return; ta.value = "";
-    try { await api.createPost(active, body); await loadRoom(active); }
-    catch (err) { alert("Could not post: " + err.message); }
+    if (!body && !document.getElementById("roomAttach").files[0]) return;
+    const btn = e.target.querySelector("button[type=submit]");
+    btn.disabled = true;
+    try {
+      const attach = await takeAttachment("roomAttach");
+      await api.createPostWith(active, body, attach);
+      ta.value = ""; await loadRoom(active);
+    } catch (err) { alert("Could not post: " + err.message); }
+    btn.disabled = false;
   });
 }
 
@@ -684,20 +769,31 @@ async function renderInbox(el) {
       </ul>
       <div class="thread">
         <div class="thread-body" id="dmBody"><p class="empty">Select a conversation.</p></div>
-        <form class="thread-form" id="dmForm">
-          <textarea name="body" rows="1" placeholder="Write a message…" disabled></textarea>
-          <button class="btn" type="submit" disabled>Send</button>
+        <form class="thread-form" id="dmForm" style="flex-direction:column;align-items:stretch">
+          <div style="display:flex;gap:.6rem;align-items:flex-end">
+            <textarea name="body" rows="1" placeholder="Write a message…" disabled></textarea>
+            <button class="btn" type="submit" disabled>Send</button>
+          </div>
+          ${attachControl("dmAttach")}
         </form>
       </div>
     </div>`;
 
   $$("[data-thread]").forEach(b => b.addEventListener("click", () => openThread(b.dataset.thread, b)));
+  wireAttach("dmAttach");
   $("#dmForm").addEventListener("submit", async e => {
     e.preventDefault();
     const ta = e.target.querySelector("textarea"), body = ta.value.trim();
-    if (!body || !dmOther) return; ta.value = "";
-    try { await api.sendMessage(dmOther, body); await drawThread(); }
-    catch (err) { alert("Could not send: " + err.message); }
+    if (!dmOther) return;
+    if (!body && !document.getElementById("dmAttach").files[0]) return;
+    const btn = e.target.querySelector("button[type=submit]");
+    btn.disabled = true;
+    try {
+      const attach = await takeAttachment("dmAttach");
+      await api.sendMessageWith(dmOther, body, attach);
+      ta.value = ""; await drawThread();
+    } catch (err) { alert("Could not send: " + err.message); }
+    btn.disabled = false;
   });
 
   unsubDm();
@@ -717,10 +813,10 @@ async function openThread(otherId, btn) {
 
 async function drawThread() {
   const box = $("#dmBody"); if (!box || !dmOther) return;
-  const rows = await api.listMessages(dmOther);
+  const rows = await api.listMessagesFull(dmOther);
   box.innerHTML = rows.length ? rows.map(m => `
     <div class="dm ${m.sender_id === SESSION.id ? "me" : ""}">
-      <div class="msg-bubble">${esc(m.body)}<time>${when(m.created_at)}</time></div>
+      <div class="msg-bubble">${m.body ? esc(m.body) : ""}${attachmentHTML(m)}<time>${when(m.created_at)}</time></div>
     </div>`).join("") : `<p class="empty">No messages yet. Say hello.</p>`;
   box.scrollTop = box.scrollHeight;
 }
@@ -920,6 +1016,7 @@ async function renderGroup(id) {
             <div><label for="g-title">Discussion title</label><input id="g-title" name="title" required></div>
             <div style="margin-top:.7rem"><label for="g-body" class="sr">Body</label>
               <textarea id="g-body" name="body" rows="3" required placeholder="What would you like to ask or share?"></textarea></div>
+            ${attachControl("groupAttach")}
             <div class="composer-row">
               <button class="btn" type="submit">Start discussion</button>
               <span class="form-note" style="margin:0">No patient-identifiable information.</span>
@@ -933,19 +1030,24 @@ async function renderGroup(id) {
     try { mine ? await api.leaveGroup(id) : await api.joinGroup(id); await renderGroup(id); }
     catch (err) { alert(err.message); }
   });
+  wireAttach("groupAttach");
   $("#gForm")?.addEventListener("submit", async e => {
     e.preventDefault();
+    const btn = e.target.querySelector("button[type=submit]");
+    btn.disabled = true; btn.textContent = "Posting…";
     try {
-      await api.createGroupPost(id, e.target.title.value.trim(), e.target.body.value.trim());
+      const attach = await takeAttachment("groupAttach");
+      await api.createGroupPostWith(id, e.target.title.value.trim(), e.target.body.value.trim(), attach);
       e.target.reset(); await loadGroupPosts(id);
     } catch (err) { alert("Could not post: " + err.message); }
+    btn.disabled = false; btn.textContent = "Start discussion";
   });
   await loadGroupPosts(id);
 }
 
 async function loadGroupPosts(id) {
   const box = $("#gPosts"); if (!box) return;
-  const rows = await api.groupPosts(id);
+  const rows = await api.groupPostsFull(id);
   box.innerHTML = rows.length ? rows.map(p => `
     <div class="post" data-post="${esc(p.id)}">
       <div class="post-head">
@@ -955,6 +1057,7 @@ async function loadGroupPosts(id) {
       </div>
       ${p.title ? `<h3 style="font-family:var(--ui);font-size:1.05rem;font-weight:700;margin-top:.7rem">${esc(p.title)}</h3>` : ""}
       <p class="post-body">${esc(p.body)}</p>
+      ${attachmentHTML(p)}
       <div class="post-actions">
         <button class="act" data-like="post:${esc(p.id)}">Like</button>
         <button class="act" data-comments="post:${esc(p.id)}">Comment</button>
@@ -1152,7 +1255,7 @@ async function renderDiscussionBody(pillarId) {
 
 async function loadRoom(pillar) {
   const box = $("#threadBody"); if (!box) return;
-  const posts = await api.listPosts(pillar);
+  const posts = await api.listPostsFull(pillar);
   box.innerHTML = posts.length ? posts.map(bubble).join("")
     : `<p class="empty">No posts yet in this room. Start the conversation.</p>`;
   box.scrollTop = box.scrollHeight;
@@ -1170,7 +1273,8 @@ const bubble = p => `
     <div>
       <span class="who">${esc(p.profiles?.full_name || "Member")}</span>
       <span class="when">${esc([p.profiles?.role,p.profiles?.country].filter(Boolean).join(", "))} · ${when(p.created_at)}</span>
-      <p>${esc(p.body)}</p>
+      ${p.body ? `<p>${esc(p.body)}</p>` : ""}
+      ${attachmentHTML(p)}
     </div>
   </div>`;
 

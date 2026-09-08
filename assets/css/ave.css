@@ -441,3 +441,25 @@ a.disc:hover{background:var(--paper)}
 .disc span{font-size:.83rem;color:var(--ink-2)}
 
 .memberhead{display:flex;gap:1.2rem;align-items:flex-start;flex-wrap:wrap}
+
+/* ============================================================
+   v0.6 — attachments in conversations
+   ============================================================ */
+.attach-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-top:.6rem}
+.attach-btn{display:inline-flex;align-items:center;gap:.35rem;font-family:var(--ui);font-weight:600;
+  font-size:.82rem;padding:.42rem .7rem;border:1px solid var(--line);background:#fff;border-radius:3px;cursor:pointer}
+.attach-btn:hover{border-color:var(--navy)}
+.attach-btn input{display:none}
+.attach-name{font-family:var(--ui);font-size:.8rem;color:var(--ink-2);display:none;align-items:center;gap:.4rem}
+.attach-name[data-on]{display:inline-flex}
+.attach-name button{background:transparent;border:0;color:var(--red);cursor:pointer;font-weight:700;font-size:.9rem;padding:0 .2rem}
+
+.att{margin-top:.8rem;border:1px solid var(--line);border-radius:3px;overflow:hidden;max-width:460px}
+.att img,.att video{display:block;width:100%;height:auto;background:var(--paper-2)}
+.att audio{display:block;width:100%}
+.att .file{display:flex;gap:.6rem;align-items:center;padding:.75rem .9rem;text-decoration:none;background:var(--paper)}
+.att .file:hover{background:var(--paper-2)}
+.att .file b{font-family:var(--ui);font-size:.88rem;font-weight:700}
+.att .file span{font-size:.78rem;color:var(--ink-2)}
+.dm .att{max-width:100%;margin-top:.5rem}
+.dm.me .att{border-color:rgba(255,255,255,.25)}

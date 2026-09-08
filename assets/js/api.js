@@ -439,3 +439,125 @@ export async function countryCount() {
   const { data } = await c.from("profiles").select("country").limit(1000);
   return new Set((data ?? []).map(r => r.country).filter(Boolean)).size;
 }
+
+/* ============================================================
+   v0.6 — attachments in conversations
+   Any signed-in member may attach a file to a post, a group
+   discussion, a comment or a direct message. Publishing to AVE
+   Media still requires contributor rights: two deliberate tiers.
+   ============================================================ */
+
+export const ATTACH_LIMIT = 25 * 1024 * 1024;   // 25 MB
+
+export function chatUrl(path) {
+  if (!CONFIG.SUPABASE_URL || !path) return "";
+  return `${CONFIG.SUPABASE_URL}/storage/v1/object/public/chat/${path}`;
+}
+
+/** Upload one file to the chat bucket. Returns the metadata to store on the row. */
+export async function uploadAttachment(file) {
+  const c = await db(); if (!c) throw new Error("Database not connected");
+  const user = await currentUser(); if (!user) throw new Error("Sign in first");
+  if (file.size > ATTACH_LIMIT) throw new Error("That file is larger than 25 MB.");
+
+  const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-80);
+  const path = `${user.id}/${Date.now()}-${safe}`;
+  const { error } = await c.storage.from("chat").upload(path, file, {
+    cacheControl: "31536000",
+    contentType: file.type || "application/octet-stream",
+    upsert: false
+  });
+  if (error) throw error;
+  return { attachment_path: path, attachment_mime: file.type, attachment_name: file.name };
+}
+
+/* ---- attachment-aware writes (these replace the plain versions) ---- */
+
+export async function createPostWith(pillar, body, attach = null) {
+  const c = await db(); if (!c) throw new Error("Database not connected");
+  const user = await currentUser(); if (!user) throw new Error("Sign in first");
+  const { error } = await c.from("posts").insert({ pillar, body, author_id: user.id, ...(attach || {}) });
+  if (error) throw error;
+}
+
+export async function createGroupPostWith(groupId, title, body, attach = null) {
+  const c = await db(); if (!c) throw new Error("Database not connected");
+  const user = await currentUser(); if (!user) throw new Error("Sign in first");
+  const { error } = await c.from("posts")
+    .insert({ group_id: groupId, title, body, author_id: user.id, ...(attach || {}) });
+  if (error) throw error;
+}
+
+export async function addCommentWith(targetType, targetId, body, attach = null) {
+  const c = await db(); if (!c) throw new Error("Database not connected");
+  const user = await currentUser(); if (!user) throw new Error("Sign in first");
+  const { error } = await c.from("comments").insert({
+    target_type: targetType, target_id: String(targetId), author_id: user.id, body, ...(attach || {})
+  });
+  if (error) throw error;
+}
+
+export async function sendMessageWith(recipientId, body, attach = null) {
+  const c = await db(); if (!c) throw new Error("Database not connected");
+  const me = (await currentUser()).id;
+  const { error } = await c.from("messages")
+    .insert({ sender_id: me, recipient_id: recipientId, body, ...(attach || {}) });
+  if (error) throw error;
+}
+
+/* ---- selects must now return the attachment columns ---- */
+
+export async function listPostsFull(pillar) {
+  const c = await db(); if (!c) return [];
+  const { data } = await c.from("posts")
+    .select("id,pillar,body,created_at,author_id,attachment_path,attachment_mime,attachment_name,profiles(full_name,country,role)")
+    .eq("pillar", pillar).eq("is_removed", false)
+    .order("created_at", { ascending: true }).limit(200);
+  return data ?? [];
+}
+
+export async function recentPostsFull(limit = 40) {
+  const c = await db(); if (!c) return [];
+  const { data } = await c.from("posts")
+    .select("id,pillar,body,created_at,author_id,attachment_path,attachment_mime,attachment_name,profiles(full_name,country,role)")
+    .is("group_id", null).eq("is_removed", false)
+    .order("created_at", { ascending: false }).limit(limit);
+  return data ?? [];
+}
+
+export async function groupPostsFull(groupId, limit = 50) {
+  const c = await db(); if (!c) return [];
+  const { data } = await c.from("posts")
+    .select("id,title,body,created_at,group_id,author_id,attachment_path,attachment_mime,attachment_name,profiles(full_name,country,role)")
+    .eq("group_id", groupId).eq("is_removed", false)
+    .order("created_at", { ascending: false }).limit(limit);
+  return data ?? [];
+}
+
+export async function listCommentsFull(targetType, targetId) {
+  const c = await db(); if (!c) return [];
+  const { data } = await c.from("comments")
+    .select("id,body,created_at,author_id,attachment_path,attachment_mime,attachment_name,profiles(full_name,country,role)")
+    .eq("target_type", targetType).eq("target_id", String(targetId))
+    .order("created_at", { ascending: true }).limit(200);
+  return data ?? [];
+}
+
+export async function listMessagesFull(otherId) {
+  const c = await db(); if (!c) return [];
+  const me = (await currentUser()).id;
+  const { data } = await c.from("messages")
+    .select("id,sender_id,recipient_id,body,created_at,attachment_path,attachment_mime,attachment_name")
+    .or(`and(sender_id.eq.${me},recipient_id.eq.${otherId}),and(sender_id.eq.${otherId},recipient_id.eq.${me})`)
+    .order("created_at", { ascending: true }).limit(300);
+  return data ?? [];
+}
+
+/* ---- reporting ---- */
+export async function report(targetType, targetId, reason) {
+  const c = await db(); if (!c) throw new Error("Database not connected");
+  const user = await currentUser(); if (!user) throw new Error("Sign in first");
+  const { error } = await c.from("reports")
+    .insert({ target_type: targetType, target_id: String(targetId), reporter_id: user.id, reason });
+  if (error) throw error;
+}
